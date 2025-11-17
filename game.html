@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🐶 Pug Empire</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .game-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            margin-bottom: 20px;
+        }
+        
+        .pug-image {
+            width: 220px;
+            height: 220px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            margin: 25px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            cursor: pointer;
+            transition: all 0.1s;
+            border: 6px solid #FF8C00;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            user-select: none;
+        }
+        
+        .pug-image:active {
+            transform: scale(0.92);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.15);
+            padding: 18px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .energy-container {
+            margin: 20px 0;
+        }
+        
+        .energy-bar {
+            width: 100%;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00FF00, #00CC00);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(255,165,0,0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(255,165,0,0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .tap-power {
+            font-size: 20px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .bonus-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 30px;
+            border-radius: 20px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .coming-soon {
+            background: linear-gradient(135deg, #FF6B6B, #EE5A24);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🐶 Pug Empire</h1>
+            <p>Стань мопсом-миллионером!</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>💎 Монеты</div>
+                <div class="stat-value" id="coins">0</div>
+            </div>
+            <div class="stat-card">
+                <div>🏆 Уровень</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+        </div>
+        
+        <div class="energy-container">
+            <div>⚡ Энергия: <span id="energy">100</span>/100</div>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energy-fill" style="width: 100%;"></div>
+            </div>
+        </div>
+        
+        <div class="pug-image" id="tap-area">
+            🐶
+        </div>
+        
+        <div class="tap-power" id="tap-power">
+            👊 Сила тапа: 1
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="btn" onclick="showUpgrades()">🛠 Улучшения</button>
+            <button class="btn coming-soon" onclick="showWithdraw()">💎 Вывод</button>
+            <button class="btn" onclick="showAchievements()">🏆 Достижения</button>
+            <button class="btn" onclick="showStats()">📊 Статистика</button>
+        </div>
+    </div>
+    
+    <div class="bonus-popup" id="bonus-popup">
+        <h2 id="popup-title">🎉 БОНУС!</h2>
+        <p id="popup-message">+10 монет!</p>
+        <button class="btn" onclick="closePopup()">OK</button>
+    </div>
+
+    <script>
+        let coins = 0;
+        let energy = 100;
+        let level = 1;
+        let perTap = 1;
+        let totalTaps = 0;
+        
+        function tap() {
+            if (energy > 0) {
+                // Основной заработок
+                coins += perTap;
+                energy--;
+                totalTaps++;
+                
+                // Случайный бонус
+                if (Math.random() < 0.15) {
+                    const bonus = Math.floor(Math.random() * 10) + 1 * perTap;
+                    coins += bonus;
+                    showBonus(`🎉 КРИТИЧЕСКИЙ УДАР! +${bonus} монет!`);
+                }
+                
+                // Проверка уровня
+                const newLevel = Math.floor(coins / 500) + 1;
+                if (newLevel > level) {
+                    level = newLevel;
+                    perTap += 1;
+                    showBonus(`🎊 УРОВЕНЬ ${level}! Сила тапа +1!`);
+                }
+                
+                updateDisplay();
+                
+                // Анимация тапа
+                const tapArea = document.getElementById('tap-area');
+                tapArea.style.transform = 'scale(0.92)';
+                setTimeout(() => {
+                    tapArea.style.transform = 'scale(1)';
+                }, 100);
+            } else {
+                alert('😴 Закончилась энергия! Подожди немного.');
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('level').textContent = level;
+            document.getElementById('energy').textContent = energy;
+            document.getElementById('energy-fill').style.width = energy + '%';
+            document.getElementById('tap-power').textContent = `👊 Сила тапа: ${perTap}`;
+        }
+        
+        function showBonus(message) {
+            document.getElementById('popup-title').textContent = '🎉 БОНУС!';
+            document.getElementById('popup-message').textContent = message;
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+        
+        function closePopup() {
+            document.getElementById('bonus-popup').style.display = 'none';
+        }
+        
+        function showWithdraw() {
+            document.getElementById('popup-title').textContent = '💎 Вывод монет';
+            document.getElementById('popup-message').innerHTML = 
+                '🚀 <strong>Функция скоро будет доступна!</strong><br><br>' +
+                'Мы работаем над интеграцией с TON, TRX и другими блокчейнами<br><br>' +
+                '✨ <em>Следи за обновлениями!</em>';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+        
+        function showUpgrades() {
+            alert('🛠 Система улучшений скоро будет доступна!');
+        }
+        
+        function showAchievements() {
+            alert('🏆 Система достижений в разработке!');
+        }
+        
+        function showStats() {
+            alert(`📊 Статистика:\n\nВсего тапов: ${totalTaps}\nМонет заработано: ${coins}\nУровень: ${level}`);
+        }
+        
+        // Восстановление энергии
+        setInterval(() => {
+            if (energy < 100) {
+                energy++;
+                updateDisplay();
+            }
+        }, 30000); // +1 энергия каждые 30 секунд
+        
+        // Инициализация
+        document.getElementById('tap-area').addEventListener('click', tap);
+        updateDisplay();
+    </script>
+</body>
+</html>
