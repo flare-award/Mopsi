@@ -1379,20 +1379,11 @@
             userId = 'local_user_' + Math.floor(Math.random() * 1000000);
         }
 
-        // Функция восстановления энергии на основе времени (ИСПРАВЛЕННАЯ - идентично боту)
+        // Функция восстановления энергии на основе времени (ИСПРАВЛЕННАЯ)
         function restoreEnergyBasedOnTime(userData) {
             try {
                 const now = new Date();
-                const lastUpdateStr = userData.last_energy_update;
-                
-                if (!lastUpdateStr) {
-                    return {
-                        ...userData,
-                        last_energy_update: now.toISOString()
-                    };
-                }
-                
-                const lastUpdate = new Date(lastUpdateStr);
+                const lastUpdate = new Date(userData.last_energy_update);
                 
                 // Проверяем валидность даты
                 if (isNaN(lastUpdate.getTime())) {
@@ -1405,34 +1396,34 @@
                 
                 const timeDiff = (now - lastUpdate) / 1000; // в секундах
                 
-                // Восстанавливаем энергию только если прошло достаточно времени
-                if (timeDiff > 0) {
-                    const energyRegenSpeed = userData.energy_regen_speed || 10;
-                    const currentEnergy = userData.energy || 0;
-                    const maxEnergy = userData.max_energy || 100;
-                    
-                    // Количество энергии для восстановления (целое число)
-                    const energyToAdd = Math.floor(timeDiff / energyRegenSpeed);
-                    
-                    if (energyToAdd > 0) {
-                        const newEnergy = Math.min(maxEnergy, currentEnergy + energyToAdd);
-                        
-                        // Обновляем только если энергия изменилась
-                        if (newEnergy !== currentEnergy) {
-                            // Обновляем время только на количество ВОССТАНОВЛЕННОЙ энергии
-                            const actualSecondsUsed = energyToAdd * energyRegenSpeed;
-                            const newLastUpdate = new Date(lastUpdate.getTime() + actualSecondsUsed * 1000);
-                            
-                            console.log(`⚡ Восстановлено ${energyToAdd} энергии. Теперь: ${newEnergy}/${maxEnergy}`);
-                            
-                            return {
-                                ...userData,
-                                energy: newEnergy,
-                                last_energy_update: newLastUpdate.toISOString()
-                            };
-                        }
-                    }
+                // Если время не изменилось, возвращаем исходные данные
+                if (timeDiff <= 0) {
+                    return userData;
                 }
+                
+                const energyRegenSpeed = userData.energy_regen_speed || 10;
+                const currentEnergy = userData.energy || 0;
+                const maxEnergy = userData.max_energy || 100;
+                
+                // Восстанавливаем энергию порциями
+                const energyToAdd = Math.floor(timeDiff / energyRegenSpeed);
+                
+                if (energyToAdd > 0) {
+                    const newEnergy = Math.min(maxEnergy, currentEnergy + energyToAdd);
+                    
+                    // Рассчитываем точное время, которое было использовано для восстановления
+                    const usedTime = energyToAdd * energyRegenSpeed;
+                    const newLastUpdate = new Date(lastUpdate.getTime() + usedTime * 1000);
+                    
+                    console.log(`⚡ Восстановлено ${energyToAdd} энергии за ${timeDiff.toFixed(1)}с (использовано ${usedTime}с)`);
+                    
+                    return {
+                        ...userData,
+                        energy: newEnergy,
+                        last_energy_update: newLastUpdate.toISOString()
+                    };
+                }
+                
                 return userData;
             } catch (error) {
                 console.error('Ошибка восстановления энергии:', error);
@@ -1461,7 +1452,7 @@
                     console.log('✅ Пользователь найден в базе');
                     let savedData = users[userId];
                     
-                    // Восстанавливаем энергию на основе времени (используем исправленную функцию)
+                    // ВАЖНО: Восстанавливаем энергию ДО обновления userData
                     savedData = restoreEnergyBasedOnTime(savedData);
                     
                     // Преобразуем upgrades из строки в объект если нужно
@@ -1473,7 +1464,12 @@
                         }
                     }
                     
-                    userData = { ...userData, ...savedData };
+                    // Обновляем userData, сохраняя настройки
+                    userData = { 
+                        ...userData, 
+                        ...savedData,
+                        settings: userData.settings // Сохраняем текущие настройки
+                    };
                     
                     console.log('📊 Загруженные данные:', {
                         coins: userData.coins,
@@ -1483,9 +1479,11 @@
                         energy_regen_speed: userData.energy_regen_speed
                     });
                     
+                    // НЕ сохраняем данные сразу после загрузки - это вызывает проблемы
                 } else {
                     console.log('❌ Пользователь не найден, создаем нового');
                     // Создаем нового пользователя
+                    userData.last_energy_update = new Date().toISOString();
                     await saveUserData();
                 }
                 
@@ -1519,7 +1517,7 @@
                 const data = await response.json();
                 const users = data.record.users || {};
                 
-                // Подготавливаем данные для сохранения (как в боте)
+                // Подготавливаем данные для сохранения
                 const userDataToSave = {
                     username: userData.username || `user_${userId}`,
                     coins: userData.coins || 0,
@@ -1647,9 +1645,11 @@
 
         // Обработчик тапов
         async function handleTap(event) {
+            // Сначала восстанавливаем энергию
+            userData = restoreEnergyBasedOnTime(userData);
+            
             if (userData.energy >= 1) {
-                // Восстанавливаем энергию перед действием
-                userData = restoreEnergyBasedOnTime(userData);
+                const oldEnergy = userData.energy;
                 
                 // Основной заработок
                 let earned = userData.per_tap;
@@ -1658,7 +1658,7 @@
                 userData.total_taps++;
                 userData.last_tap_time = new Date().toISOString();
                 
-                // КРИТИЧЕСКИ ВАЖНО: обновляем last_energy_update при трате энергии
+                // ОБНОВЛЯЕМ last_energy_update при трате энергии
                 userData.last_energy_update = new Date().toISOString();
                 
                 // Создаем эффект тапа
@@ -1691,7 +1691,10 @@
                 checkSkinUnlocks();
                 
                 updateDisplay();
+                
+                // Сохраняем данные после тапа
                 await saveUserData();
+                
             } else {
                 showNotification('Энергия закончилась. Подожди немного!', 'error');
             }
@@ -1714,19 +1717,20 @@
 
         // Улучшенная функция восстановления энергии (для интерфейса)
         async function restoreEnergy() {
-            // Восстанавливаем энергию только если она не полная
-            if (userData.energy < userData.max_energy) {
-                const oldEnergy = userData.energy;
-                userData = restoreEnergyBasedOnTime(userData);
+            const oldEnergy = userData.energy;
+            userData = restoreEnergyBasedOnTime(userData);
+            
+            // Обновляем отображение только если энергия изменилась
+            if (userData.energy !== oldEnergy) {
+                updateDisplay();
                 
-                // Обновляем отображение только если энергия изменилась
-                if (userData.energy !== oldEnergy) {
-                    updateDisplay();
-                    
-                    // Сохраняем каждые 30 секунд при восстановлении
-                    if (Math.random() < 0.03) {
-                        await saveUserData();
-                    }
+                // Сохраняем только если прошло достаточно времени (раз в 30 секунд)
+                const now = new Date();
+                const lastSave = new Date(userData.last_save_time || now.toISOString());
+                const timeSinceLastSave = (now - lastSave) / 1000;
+                
+                if (timeSinceLastSave > 30) {
+                    await saveUserData();
                 }
             }
         }
@@ -2208,33 +2212,36 @@
             }, 3000);
         }
 
+        // Улучшенный авто-таппер
+        setInterval(async () => {
+            const autoTapperLevel = userData.upgrades.auto_tapper || 0;
+            if (autoTapperLevel > 0) {
+                // Восстанавливаем энергию перед действием
+                userData = restoreEnergyBasedOnTime(userData);
+                
+                if (userData.energy > 0) {
+                    const taps = Math.min(autoTapperLevel, userData.energy);
+                    
+                    for (let i = 0; i < taps; i++) {
+                        userData.coins += userData.per_tap;
+                        userData.energy--;
+                        userData.total_taps++;
+                    }
+                    
+                    // ОБНОВЛЯЕМ last_energy_update при трате энергии авто-таппером
+                    userData.last_energy_update = new Date().toISOString();
+                    
+                    updateDisplay();
+                    await saveUserData();
+                }
+            }
+        }, 10000);
+
         // Инициализация
         document.getElementById('tap-area').addEventListener('click', handleTap);
         
         // Восстановление энергии каждую секунду
         setInterval(restoreEnergy, 1000);
-        
-        // Улучшенный авто-таппер
-        setInterval(async () => {
-            const autoTapperLevel = userData.upgrades.auto_tapper || 0;
-            if (autoTapperLevel > 0 && userData.energy > 0) {
-                // Восстанавливаем энергию перед действием
-                userData = restoreEnergyBasedOnTime(userData);
-                
-                for (let i = 0; i < autoTapperLevel; i++) {
-                    if (userData.energy > 0) {
-                        userData.coins += userData.per_tap;
-                        userData.energy--;
-                        userData.total_taps++;
-                        
-                        // ОБНОВЛЯЕМ last_energy_update при трате энергии авто-таппером
-                        userData.last_energy_update = new Date().toISOString();
-                    }
-                }
-                updateDisplay();
-                await saveUserData();
-            }
-        }, 10000);
         
         // Загрузка данных при старте
         loadUserData();
