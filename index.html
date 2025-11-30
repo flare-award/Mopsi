@@ -19,11 +19,12 @@
             color: white;
             overflow: hidden;
             user-select: none;
+            height: 100vh;
         }
         
         .game-container {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -157,6 +158,7 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
+            font-size: 14px;
         }
         
         .nav-btn:active {
@@ -164,8 +166,23 @@
             transform: scale(0.95);
         }
         
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .nav-btn:disabled::after {
+            content: " (Недоступно)";
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        
         .withdraw-btn {
             background: linear-gradient(135deg, #FF6B6B, #EE5A24);
+        }
+        
+        .upgrade-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
         }
         
         .bonus-popup {
@@ -180,6 +197,8 @@
             z-index: 1000;
             border: 2px solid #FFD700;
             display: none;
+            max-width: 90%;
+            width: 400px;
         }
         
         .popup-title {
@@ -196,6 +215,130 @@
         
         .coming-soon {
             background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .skin-unlocked {
+            background: linear-gradient(135deg, #FF4081, #F50057);
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 999;
+            display: none;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .menu-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .upgrade-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .upgrade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-cost {
+            background: #FFD700;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .skin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .skin-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .skin-card.locked {
+            opacity: 0.5;
+            filter: grayscale(1);
+        }
+        
+        .skin-card.current {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        
+        .skin-emoji {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .skin-name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .skin-requirement {
+            font-size: 10px;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -216,6 +359,10 @@
                     <div class="stat-value" id="per-tap">1</div>
                 </div>
             </div>
+            <div class="stat-card" onclick="showSkins()" style="cursor: pointer;">
+                <div id="current-skin">🐶</div>
+                <div style="font-size: 12px;">Скин</div>
+            </div>
         </div>
         
         <div class="main-game">
@@ -225,6 +372,8 @@
                 </div>
                 <div style="text-align: center; font-size: 14px;">
                     ⚡ Энергия: <span id="energy">100</span>/<span id="max-energy">100</span>
+                    <br>
+                    <small>Восстановление: 1/<span id="regen-speed">10</span>с</small>
                 </div>
             </div>
             
@@ -235,80 +384,248 @@
             </div>
             
             <div style="text-align: center;">
-                <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">Тапай по мопсу!</div>
-                <div style="font-size: 14px; opacity: 0.8;">Зарабатывай монеты и улучшай своего мопса</div>
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;" id="skin-name">Начинающий мопс</div>
+                <div style="font-size: 14px; opacity: 0.8;">Тапай для заработка монет!</div>
+                <div style="font-size: 12px; opacity: 0.6; margin-top: 5px;" id="next-skin">Следующий скин: 1,000 тапов</div>
             </div>
         </div>
         
         <div class="bottom-nav">
-            <button class="nav-btn" onclick="showUpgrades()">
-                🛠<br>Улучшения
+            <button class="nav-btn upgrade-btn" onclick="showUpgrades()">
+                🛠<br>Прокачка
             </button>
             <button class="nav-btn withdraw-btn" onclick="showWithdraw()">
                 💎<br>Вывод
             </button>
-            <button class="nav-btn" onclick="showAchievements()">
-                🏆<br>Достижения
+            <button class="nav-btn" onclick="showLeaderboard()">
+                🏆<br>Топ
+            </button>
+            <button class="nav-btn" onclick="showClans()">
+                👥<br>Кланы
+            </button>
+            <button class="nav-btn" onclick="showReferrals()">
+                👤<br>Рефералы
+            </button>
+            <button class="nav-btn" onclick="showSettings()">
+                ⚙️<br>Настройки
             </button>
         </div>
     </div>
     
+    <!-- Попап бонусов -->
     <div class="bonus-popup" id="bonus-popup">
         <div class="popup-title" id="popup-title">🎉 БОНУС!</div>
         <div id="popup-message" style="font-size: 18px; margin-bottom: 20px;">+10 монет!</div>
         <button class="nav-btn" onclick="closePopup()" style="background: #4CAF50;">OK</button>
     </div>
+    
+    <!-- Меню прокачки -->
+    <div class="menu-overlay" id="upgrades-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>🛠 Система прокачки</h2>
+                <button class="close-btn" onclick="hideUpgrades()">✕</button>
+            </div>
+            <div id="upgrades-list">
+                <!-- Улучшения будут добавляться через JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Меню вывода -->
+    <div class="menu-overlay" id="withdraw-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>💎 Вывод монет</h2>
+                <button class="close-btn" onclick="hideWithdraw()">✕</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <div class="stat-card" style="margin-bottom: 15px;">
+                    <div>💰 Баланс</div>
+                    <div class="stat-value" id="withdraw-balance">0</div>
+                </div>
+                <div style="opacity: 0.8; font-size: 14px; margin-bottom: 15px;">
+                    Минимальная сумма вывода: 1,000 монет
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px;">💳 Методы вывода</h3>
+                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" disabled>
+                    <span>💰 Криптовалюты</span>
+                </button>
+                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" disabled>
+                    <span>💳 Электронные кошельки</span>
+                </button>
+                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" disabled>
+                    <span>🎮 Игровые валюты</span>
+                </button>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; border-left: 4px solid #FFD700;">
+                <strong>🚧 В разработке</strong>
+                <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">
+                    Система вывода будет доступна в ближайшем обновлении
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Меню скинов -->
+    <div class="menu-overlay" id="skins-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>🎨 Коллекция мопсов</h2>
+                <button class="close-btn" onclick="hideSkins()">✕</button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div>📊 Всего тапов</div>
+                    <div class="stat-value" id="total-taps">0</div>
+                </div>
+            </div>
+            
+            <div class="skin-grid" id="skins-grid">
+                <!-- Скины будут добавляться через JS -->
+            </div>
+        </div>
+    </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
-        
+        // Данные игры
+        const PUG_SKINS = [
+            {id: 1, name: "Начинающий мопс", taps_required: 0, emoji: "🐶"},
+            {id: 2, name: "Опытный мопс", taps_required: 1000, emoji: "⭐"},
+            {id: 3, name: "Огненный мопс", taps_required: 5000, emoji: "🔥"},
+            {id: 4, name: "Алмазный мопс", taps_required: 15000, emoji: "💎"},
+            {id: 5, name: "Королевский мопс", taps_required: 30000, emoji: "👑"},
+            {id: 6, name: "Космический мопс", taps_required: 60000, emoji: "🚀"},
+            {id: 7, name: "Галактический мопс", taps_required: 120000, emoji: "🌌"},
+            {id: 8, name: "Легендарный мопс", taps_required: 250000, emoji: "💫"},
+            {id: 9, name: "Мифический мопс", taps_required: 500000, emoji: "🎭"},
+            {id: 10, name: "Божественный мопс", taps_required: 1000000, emoji: "🌟"},
+            {id: 11, name: "Вечный мопс", taps_required: 2000000, emoji: "⚡"},
+            {id: 12, name: "Мопс Создатель", taps_required: 5000000, emoji: "🎮"}
+        ];
+
+        const UPGRADES = {
+            tap_power: {name: "💪 Сила тапа", description: "Увеличивает монеты за клик", base_cost: 50, cost_multiplier: 1.5, effect: 1, max_level: 100},
+            energy_capacity: {name: "⚡ Ёмкость энергии", description: "Увеличивает максимальную энергию", base_cost: 100, cost_multiplier: 2.0, effect: 10, max_level: 50},
+            energy_regen: {name: "🔋 Регенерация", description: "Ускоряет восстановление энергии", base_cost: 200, cost_multiplier: 2.5, effect: -1, max_level: 30},
+            critical_chance: {name: "🎯 Шанс крита", description: "Увеличивает шанс критического удара", base_cost: 300, cost_multiplier: 3.0, effect: 0.5, max_level: 40},
+            critical_multiplier: {name: "💥 Множитель крита", description: "Увеличивает множитель критического удара", base_cost: 500, cost_multiplier: 4.0, effect: 0.1, max_level: 25},
+            auto_tapper: {name: "🤖 Авто-таппер", description: "Автоматически тапает каждые 10 секунд", base_cost: 1000, cost_multiplier: 5.0, effect: 1, max_level: 20}
+        };
+
         let userData = {
             coins: 0,
             per_tap: 1,
             energy: 100,
             max_energy: 100,
+            energy_regen_speed: 10,
             level: 1,
-            total_taps: 0
+            total_taps: 0,
+            upgrades: {},
+            current_skin: 1
         };
-        
-        // Загрузка данных пользователя
+
+        let tg = window.Telegram.WebApp;
+        if (tg) {
+            tg.expand();
+            tg.enableClosingConfirmation();
+        }
+
+        // Загрузка и сохранение данных
         function loadUserData() {
-            // В реальном приложении здесь будет запрос к боту
-            // Для демо используем localStorage
             const saved = localStorage.getItem('pugEmpireData');
             if (saved) {
-                userData = {...userData, ...JSON.parse(saved)};
+                const data = JSON.parse(saved);
+                userData = {...userData, ...data};
+                
+                // Проверяем разблокировку скинов
+                checkSkinUnlocks();
             }
             updateDisplay();
         }
-        
-        // Сохранение данных
+
         function saveUserData() {
             localStorage.setItem('pugEmpireData', JSON.stringify(userData));
         }
-        
+
         // Обновление интерфейса
         function updateDisplay() {
-            document.getElementById('coins').textContent = userData.coins;
+            document.getElementById('coins').textContent = userData.coins.toLocaleString();
             document.getElementById('level').textContent = userData.level;
             document.getElementById('per-tap').textContent = userData.per_tap;
             document.getElementById('energy').textContent = userData.energy;
             document.getElementById('max-energy').textContent = userData.max_energy;
+            document.getElementById('regen-speed').textContent = userData.energy_regen_speed;
             document.getElementById('energy-fill').style.width = (userData.energy / userData.max_energy * 100) + '%';
+            document.getElementById('withdraw-balance').textContent = userData.coins.toLocaleString();
+            document.getElementById('total-taps').textContent = userData.total_taps.toLocaleString();
+            
+            // Обновляем скин
+            const currentSkin = getCurrentSkin();
+            document.getElementById('current-skin').textContent = currentSkin.emoji;
+            document.getElementById('skin-name').textContent = currentSkin.name;
+            
+            // Показываем следующий скин
+            const nextSkin = getNextSkin();
+            if (nextSkin) {
+                document.getElementById('next-skin').textContent = `Следующий скин: ${nextSkin.taps_required.toLocaleString()} тапов`;
+            } else {
+                document.getElementById('next-skin').textContent = 'Максимальный скин unlocked!';
+            }
         }
-        
+
+        // Система скинов
+        function getCurrentSkin() {
+            return PUG_SKINS.find(skin => skin.id === userData.current_skin) || PUG_SKINS[0];
+        }
+
+        function getNextSkin() {
+            const currentIndex = PUG_SKINS.findIndex(skin => skin.id === userData.current_skin);
+            return PUG_SKINS[currentIndex + 1];
+        }
+
+        function checkSkinUnlocks() {
+            const unlockedSkin = PUG_SKINS.filter(skin => userData.total_taps >= skin.taps_required)
+                                         .reduce((max, skin) => skin.id > max.id ? skin : max, PUG_SKINS[0]);
+            
+            if (unlockedSkin.id > userData.current_skin) {
+                userData.current_skin = unlockedSkin.id;
+                showSkinUnlocked(unlockedSkin);
+            }
+        }
+
+        function showSkinUnlocked(skin) {
+            document.getElementById('popup-title').textContent = '🎉 НОВЫЙ СКИН!';
+            document.getElementById('popup-message').textContent = `Разблокирован: ${skin.emoji} ${skin.name}`;
+            document.getElementById('bonus-popup').className = 'bonus-popup skin-unlocked';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+
         // Обработчик тапов
         function handleTap(event) {
             if (userData.energy > 0) {
                 // Основной заработок
-                userData.coins += userData.per_tap;
+                let earned = userData.per_tap;
+                userData.coins += earned;
                 userData.energy--;
                 userData.total_taps++;
                 
                 // Создаем эффект тапа
-                createTapEffect(event, `+${userData.per_tap} 💎`);
+                createTapEffect(event, `+${earned} 💎`);
+                
+                // Критический удар (базовый шанс 5%)
+                let critChance = 5 + (userData.upgrades.critical_chance || 0) * 0.5;
+                if (Math.random() < critChance / 100) {
+                    let critMultiplier = 2 + (userData.upgrades.critical_multiplier || 0) * 0.1;
+                    let critBonus = Math.floor(earned * critMultiplier);
+                    userData.coins += critBonus;
+                    createTapEffect(event, `💥 КРИТ! +${critBonus}`);
+                }
                 
                 // Случайный бонус (10% шанс)
                 if (Math.random() < 0.1) {
@@ -324,16 +641,16 @@
                     showLevelUp();
                 }
                 
+                // Проверка скинов
+                checkSkinUnlocks();
+                
                 updateDisplay();
                 saveUserData();
-                
-                // В реальном приложении здесь будет отправка данных боту
-                // tg.sendData(JSON.stringify({action: 'tap'}));
             } else {
                 showPopup('😴 Усталость!', 'Энергия закончилась. Подожди немного!');
             }
         }
-        
+
         // Создание эффекта тапа
         function createTapEffect(event, text) {
             const effect = document.createElement('div');
@@ -348,46 +665,7 @@
                 effect.remove();
             }, 1000);
         }
-        
-        // Показ попапа
-        function showPopup(title, message) {
-            document.getElementById('popup-title').textContent = title;
-            document.getElementById('popup-message').textContent = message;
-            document.getElementById('bonus-popup').style.display = 'block';
-        }
-        
-        function closePopup() {
-            document.getElementById('bonus-popup').style.display = 'none';
-        }
-        
-        // Повышение уровня
-        function showLevelUp() {
-            document.getElementById('bonus-popup').className = 'bonus-popup level-up';
-            showPopup('🎊 УРОВЕНЬ ПОВЫШЕН!', `Новый уровень: ${userData.level}\nПоздравляем! 🐶`);
-        }
-        
-        // Функция вывода
-        function showWithdraw() {
-            document.getElementById('bonus-popup').className = 'bonus-popup coming-soon';
-            showPopup(
-                '💎 Вывод монет', 
-                '🚀 Функция скоро будет доступна!\n\n' +
-                'Мы работаем над интеграцией с:\n' +
-                '• TON Blockchain\n' +
-                '• TRX Network\n' +
-                '• Binance Smart Chain\n\n' +
-                'Следи за обновлениями! ✨'
-            );
-        }
-        
-        function showUpgrades() {
-            showPopup('🛠 Улучшения', 'Система улучшений будет доступна в следующем обновлении!');
-        }
-        
-        function showAchievements() {
-            showPopup('🏆 Достижения', 'Система достижений в разработке!');
-        }
-        
+
         // Восстановление энергии
         function restoreEnergy() {
             if (userData.energy < userData.max_energy) {
@@ -396,20 +674,204 @@
                 saveUserData();
             }
         }
-        
+
+        // Система прокачки
+        function showUpgrades() {
+            const menu = document.getElementById('upgrades-menu');
+            const list = document.getElementById('upgrades-list');
+            list.innerHTML = '';
+            
+            for (const [id, upgrade] of Object.entries(UPGRADES)) {
+                const currentLevel = userData.upgrades[id] || 0;
+                const cost = Math.floor(upgrade.base_cost * Math.pow(upgrade.cost_multiplier, currentLevel));
+                const progress = (currentLevel / upgrade.max_level) * 100;
+                
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = 'upgrade-item';
+                upgradeElement.innerHTML = `
+                    <div class="upgrade-header">
+                        <div>
+                            <strong>${upgrade.name}</strong>
+                            <div style="font-size: 12px; opacity: 0.8;">${upgrade.description}</div>
+                        </div>
+                        <div class="upgrade-cost">${cost} 💎</div>
+                    </div>
+                    <div style="font-size: 12px; margin-bottom: 5px;">
+                        Уровень: ${currentLevel}/${upgrade.max_level}
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <button class="nav-btn" onclick="buyUpgrade('${id}')" 
+                            ${currentLevel >= upgrade.max_level || userData.coins < cost ? 'disabled' : ''}
+                            style="width: 100%; margin-top: 10px;">
+                        ${currentLevel >= upgrade.max_level ? '✅ МАКС' : '🛠 Улучшить'}
+                    </button>
+                `;
+                
+                list.appendChild(upgradeElement);
+            }
+            
+            menu.style.display = 'block';
+        }
+
+        function hideUpgrades() {
+            document.getElementById('upgrades-menu').style.display = 'none';
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = UPGRADES[upgradeId];
+            const currentLevel = userData.upgrades[upgradeId] || 0;
+            const cost = Math.floor(upgrade.base_cost * Math.pow(upgrade.cost_multiplier, currentLevel));
+            
+            if (userData.coins < cost) {
+                showPopup('❌ Недостаточно монет', `Нужно: ${cost} 💎`);
+                return;
+            }
+            
+            if (currentLevel >= upgrade.max_level) {
+                showPopup('✅ Максимальный уровень', 'Это улучшение уже максимального уровня!');
+                return;
+            }
+            
+            // Покупаем улучшение
+            userData.coins -= cost;
+            userData.upgrades[upgradeId] = currentLevel + 1;
+            
+            // Применяем эффекты
+            if (upgradeId === 'tap_power') {
+                userData.per_tap += upgrade.effect;
+            } else if (upgradeId === 'energy_capacity') {
+                userData.max_energy += upgrade.effect;
+            } else if (upgradeId === 'energy_regen') {
+                userData.energy_regen_speed = Math.max(1, userData.energy_regen_speed + upgrade.effect);
+            }
+            
+            showPopup('🎉 Улучшение куплено!', `${upgrade.name} улучшено до уровня ${currentLevel + 1}`);
+            updateDisplay();
+            saveUserData();
+            
+            // Обновляем список улучшений
+            setTimeout(showUpgrades, 2000);
+        }
+
+        // Меню скинов
+        function showSkins() {
+            const menu = document.getElementById('skins-menu');
+            const grid = document.getElementById('skins-grid');
+            grid.innerHTML = '';
+            
+            PUG_SKINS.forEach(skin => {
+                const isUnlocked = userData.total_taps >= skin.taps_required;
+                const isCurrent = userData.current_skin === skin.id;
+                
+                const skinElement = document.createElement('div');
+                skinElement.className = `skin-card ${isUnlocked ? '' : 'locked'} ${isCurrent ? 'current' : ''}`;
+                skinElement.innerHTML = `
+                    <div class="skin-emoji">${skin.emoji}</div>
+                    <div class="skin-name">${skin.name}</div>
+                    <div class="skin-requirement">${skin.taps_required.toLocaleString()} тапов</div>
+                    ${isCurrent ? '<div style="color: #FFD700; font-size: 10px; margin-top: 5px;">✓ Текущий</div>' : ''}
+                `;
+                
+                if (isUnlocked && !isCurrent) {
+                    skinElement.style.cursor = 'pointer';
+                    skinElement.onclick = () => selectSkin(skin.id);
+                }
+                
+                grid.appendChild(skinElement);
+            });
+            
+            menu.style.display = 'block';
+        }
+
+        function hideSkins() {
+            document.getElementById('skins-menu').style.display = 'none';
+        }
+
+        function selectSkin(skinId) {
+            userData.current_skin = skinId;
+            updateDisplay();
+            saveUserData();
+            hideSkins();
+            showPopup('🎨 Скин изменен', 'Новый внешний вид активирован!');
+        }
+
+        // Меню вывода
+        function showWithdraw() {
+            document.getElementById('withdraw-menu').style.display = 'block';
+        }
+
+        function hideWithdraw() {
+            document.getElementById('withdraw-menu').style.display = 'none';
+        }
+
+        // Вспомогательные функции
+        function showPopup(title, message) {
+            document.getElementById('popup-title').textContent = title;
+            document.getElementById('popup-message').textContent = message;
+            document.getElementById('bonus-popup').className = 'bonus-popup';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('bonus-popup').style.display = 'none';
+        }
+
+        function showLevelUp() {
+            document.getElementById('popup-title').textContent = '🎊 УРОВЕНЬ ПОВЫШЕН!';
+            document.getElementById('popup-message').textContent = `Новый уровень: ${userData.level}\nПоздравляем! 🐶`;
+            document.getElementById('bonus-popup').className = 'bonus-popup level-up';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+
+        function showLeaderboard() {
+            showPopup('🏆 Таблица лидеров', 'Откройте бота для просмотра полной таблицы лидеров!');
+        }
+
+        function showClans() {
+            showPopup('👥 Система кланов', 'Функция кланов доступна в основном интерфейсе бота!');
+        }
+
+        function showReferrals() {
+            showPopup('👤 Реферальная система', 'Приглашайте друзей и получайте бонусы! Откройте бота для получения ссылки.');
+        }
+
+        function showSettings() {
+            showPopup('⚙️ Настройки', 'Все настройки доступны в основном меню бота!');
+        }
+
         // Инициализация
         document.getElementById('tap-area').addEventListener('click', handleTap);
         
-        // Восстановление энергии каждую минуту
-        setInterval(restoreEnergy, 60000);
+        // Восстановление энергии
+        setInterval(restoreEnergy, userData.energy_regen_speed * 1000);
+        
+        // Авто-таппер
+        setInterval(() => {
+            const autoTapperLevel = userData.upgrades.auto_tapper || 0;
+            if (autoTapperLevel > 0 && userData.energy > 0) {
+                for (let i = 0; i < autoTapperLevel; i++) {
+                    if (userData.energy > 0) {
+                        userData.coins += userData.per_tap;
+                        userData.energy--;
+                        userData.total_taps++;
+                    }
+                }
+                updateDisplay();
+                saveUserData();
+            }
+        }, 10000);
         
         // Загрузка данных при старте
         loadUserData();
         
         // Обработчик от Telegram
-        tg.onEvent('viewportChanged', () => {
-            tg.expand();
-        });
+        if (tg) {
+            tg.onEvent('viewportChanged', () => {
+                tg.expand();
+            });
+        }
     </script>
 </body>
 </html>
