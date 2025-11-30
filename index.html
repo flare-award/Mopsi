@@ -340,6 +340,129 @@
             font-size: 10px;
             opacity: 0.8;
         }
+        
+        .leaderboard-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .leaderboard-rank {
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .leaderboard-user {
+            flex: 1;
+            margin: 0 15px;
+        }
+        
+        .leaderboard-score {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        .clan-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .clan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .clan-members {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .referral-code {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        
+        .referral-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.3);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
     </style>
 </head>
 <body>
@@ -451,21 +574,21 @@
             
             <div style="margin-bottom: 20px;">
                 <h3 style="margin-bottom: 10px;">💳 Методы вывода</h3>
-                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" disabled>
+                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" onclick="initiateWithdraw('crypto')">
                     <span>💰 Криптовалюты</span>
                 </button>
-                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" disabled>
+                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" onclick="initiateWithdraw('ewallet')">
                     <span>💳 Электронные кошельки</span>
                 </button>
-                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" disabled>
+                <button class="nav-btn" style="width: 100%; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px;" onclick="initiateWithdraw('game')">
                     <span>🎮 Игровые валюты</span>
                 </button>
             </div>
             
             <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; border-left: 4px solid #FFD700;">
-                <strong>🚧 В разработке</strong>
+                <strong>💡 Информация</strong>
                 <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">
-                    Система вывода будет доступна в ближайшем обновлении
+                    Для вывода монет необходимо набрать минимум 1,000 монет
                 </div>
             </div>
         </div>
@@ -488,6 +611,139 @@
             
             <div class="skin-grid" id="skins-grid">
                 <!-- Скины будут добавляться через JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Меню лидерборда -->
+    <div class="menu-overlay" id="leaderboard-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>🏆 Таблица лидеров</h2>
+                <button class="close-btn" onclick="hideLeaderboard()">✕</button>
+            </div>
+            
+            <div class="leaderboard-list" id="leaderboard-list">
+                <!-- Лидерборд будет добавляться через JS -->
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center; opacity: 0.8;">
+                Обновляется каждые 5 минут
+            </div>
+        </div>
+    </div>
+    
+    <!-- Меню кланов -->
+    <div class="menu-overlay" id="clans-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>👥 Система кланов</h2>
+                <button class="close-btn" onclick="hideClans()">✕</button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div>🏆 Ваш клан</div>
+                    <div class="stat-value" id="user-clan">Не в клане</div>
+                </div>
+            </div>
+            
+            <div id="clans-list">
+                <!-- Кланы будут добавляться через JS -->
+            </div>
+            
+            <button class="nav-btn" style="width: 100%; margin-top: 15px;" onclick="showCreateClan()">
+                🏗 Создать клан
+            </button>
+        </div>
+    </div>
+    
+    <!-- Меню рефералов -->
+    <div class="menu-overlay" id="referrals-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>👤 Реферальная система</h2>
+                <button class="close-btn" onclick="hideReferrals()">✕</button>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 16px; margin-bottom: 10px;">Приглашайте друзей и получайте бонусы!</div>
+                <div class="referral-code" id="referral-code">PUG-12345</div>
+                <button class="nav-btn" style="width: 100%;" onclick="copyReferralCode()">
+                    📋 Скопировать ссылку
+                </button>
+            </div>
+            
+            <div class="referral-stats">
+                <div class="stat-card">
+                    <div>👥 Приглашено</div>
+                    <div class="stat-value" id="referrals-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>💎 Заработано</div>
+                    <div class="stat-value" id="referrals-earned">0</div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-top: 15px;">
+                <strong>🎁 Бонусы</strong>
+                <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">
+                    • 10% от заработка реферала<br>
+                    • 100 монет за каждого активного друга<br>
+                    • Эксклюзивные скины за 10+ рефералов
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Меню настроек -->
+    <div class="menu-overlay" id="settings-menu">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h2>⚙️ Настройки</h2>
+                <button class="close-btn" onclick="hideSettings()">✕</button>
+            </div>
+            
+            <div class="settings-item">
+                <div>
+                    <strong>🔊 Звуки</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Включить звуковые эффекты</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="settings-item">
+                <div>
+                    <strong>📱 Вибрация</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Включить тактильную отдачу</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="vibration-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="settings-item">
+                <div>
+                    <strong>🌙 Ночной режим</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Темная тема интерфейса</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <button class="nav-btn" style="width: 100%; margin-top: 20px; background: rgba(255,0,0,0.3);" onclick="resetProgress()">
+                🔄 Сбросить прогресс
+            </button>
+            
+            <div style="text-align: center; margin-top: 20px; opacity: 0.7; font-size: 12px;">
+                Версия 1.2.0<br>
+                Pug Empire © 2024
             </div>
         </div>
     </div>
@@ -518,6 +774,28 @@
             auto_tapper: {name: "🤖 Авто-таппер", description: "Автоматически тапает каждые 10 секунд", base_cost: 1000, cost_multiplier: 5.0, effect: 1, max_level: 20}
         };
 
+        // Данные лидерборда (заглушка)
+        const LEADERBOARD_DATA = [
+            {name: "Вы", rank: 1, score: 0, isCurrent: true},
+            {name: "ProPug", rank: 2, score: 15420},
+            {name: "Mopsik", rank: 3, score: 13200},
+            {name: "PugLover", rank: 4, score: 11850},
+            {name: "GoldenPaw", rank: 5, score: 10200},
+            {name: "TapMaster", rank: 6, score: 9800},
+            {name: "CoinHunter", rank: 7, score: 8450},
+            {name: "MopsQueen", rank: 8, score: 7200},
+            {name: "PugWarrior", rank: 9, score: 6100},
+            {name: "BabyPug", rank: 10, score: 5300}
+        ];
+
+        // Данные кланов (заглушка)
+        const CLANS_DATA = [
+            {name: "Pug Masters", members: 48, level: 5, score: 154200},
+            {name: "Mops Squad", members: 32, level: 4, score: 102500},
+            {name: "Golden Paws", members: 25, level: 3, score: 84500},
+            {name: "Tap Legends", members: 18, level: 3, score: 62100}
+        ];
+
         let userData = {
             coins: 0,
             per_tap: 1,
@@ -527,7 +805,15 @@
             level: 1,
             total_taps: 0,
             upgrades: {},
-            current_skin: 1
+            current_skin: 1,
+            referrals: 0,
+            referrals_earned: 0,
+            settings: {
+                sound: true,
+                vibration: true,
+                darkMode: false
+            },
+            lastEnergyUpdate: Date.now()
         };
 
         let tg = window.Telegram.WebApp;
@@ -543,14 +829,32 @@
                 const data = JSON.parse(saved);
                 userData = {...userData, ...data};
                 
+                // Восстанавливаем энергию на основе времени
+                updateEnergyFromTime();
+                
                 // Проверяем разблокировку скинов
                 checkSkinUnlocks();
             }
             updateDisplay();
+            applySettings();
         }
 
         function saveUserData() {
+            userData.lastEnergyUpdate = Date.now();
             localStorage.setItem('pugEmpireData', JSON.stringify(userData));
+        }
+
+        // Восстановление энергии на основе прошедшего времени
+        function updateEnergyFromTime() {
+            const now = Date.now();
+            const timePassed = Math.floor((now - userData.lastEnergyUpdate) / 1000); // в секундах
+            const energyToAdd = Math.floor(timePassed / userData.energy_regen_speed);
+            
+            if (energyToAdd > 0) {
+                userData.energy = Math.min(userData.max_energy, userData.energy + energyToAdd);
+                userData.lastEnergyUpdate = now;
+                saveUserData();
+            }
         }
 
         // Обновление интерфейса
@@ -564,6 +868,8 @@
             document.getElementById('energy-fill').style.width = (userData.energy / userData.max_energy * 100) + '%';
             document.getElementById('withdraw-balance').textContent = userData.coins.toLocaleString();
             document.getElementById('total-taps').textContent = userData.total_taps.toLocaleString();
+            document.getElementById('referrals-count').textContent = userData.referrals;
+            document.getElementById('referrals-earned').textContent = userData.referrals_earned.toLocaleString();
             
             // Обновляем скин
             const currentSkin = getCurrentSkin();
@@ -806,6 +1112,165 @@
             document.getElementById('withdraw-menu').style.display = 'none';
         }
 
+        function initiateWithdraw(method) {
+            if (userData.coins < 1000) {
+                showPopup('❌ Недостаточно монет', 'Минимальная сумма вывода: 1,000 монет');
+                return;
+            }
+            
+            const methods = {
+                crypto: 'Криптовалюты',
+                ewallet: 'Электронные кошельки',
+                game: 'Игровые валюты'
+            };
+            
+            showPopup('📋 Заявка на вывод', `Вы выбрали вывод через: ${methods[method]}. Ожидайте обработки заявки в течение 24 часов.`);
+        }
+
+        // Меню лидерборда
+        function showLeaderboard() {
+            const menu = document.getElementById('leaderboard-menu');
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+            
+            // Обновляем текущий счет пользователя
+            LEADERBOARD_DATA[0].score = userData.coins;
+            
+            LEADERBOARD_DATA.forEach(player => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                if (player.isCurrent) {
+                    item.style.background = 'rgba(255,215,0,0.2)';
+                    item.style.border = '1px solid rgba(255,215,0,0.5)';
+                }
+                item.innerHTML = `
+                    <div class="leaderboard-rank">${player.rank}</div>
+                    <div class="leaderboard-user">${player.name}</div>
+                    <div class="leaderboard-score">${player.score.toLocaleString()}</div>
+                `;
+                list.appendChild(item);
+            });
+            
+            menu.style.display = 'block';
+        }
+
+        function hideLeaderboard() {
+            document.getElementById('leaderboard-menu').style.display = 'none';
+        }
+
+        // Меню кланов
+        function showClans() {
+            const menu = document.getElementById('clans-menu');
+            const list = document.getElementById('clans-list');
+            list.innerHTML = '';
+            
+            CLANS_DATA.forEach(clan => {
+                const clanElement = document.createElement('div');
+                clanElement.className = 'clan-card';
+                clanElement.innerHTML = `
+                    <div class="clan-header">
+                        <div>
+                            <strong>${clan.name}</strong>
+                            <div class="clan-members">Участников: ${clan.members}/50</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #FFD700;">Ур. ${clan.level}</div>
+                            <div style="font-size: 12px; opacity: 0.8;">${clan.score.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <button class="nav-btn" style="width: 100%; margin-top: 10px;" onclick="joinClan('${clan.name}')">
+                        Вступить
+                    </button>
+                `;
+                list.appendChild(clanElement);
+            });
+            
+            menu.style.display = 'block';
+        }
+
+        function hideClans() {
+            document.getElementById('clans-menu').style.display = 'none';
+        }
+
+        function joinClan(clanName) {
+            showPopup('👥 Вступление в клан', `Вы вступили в клан "${clanName}"!`);
+            document.getElementById('user-clan').textContent = clanName;
+        }
+
+        function showCreateClan() {
+            showPopup('🏗 Создание клана', 'Для создания клана необходимо достичь 10 уровня и иметь 5,000 монет.');
+        }
+
+        // Меню рефералов
+        function showReferrals() {
+            // Генерируем реферальный код на основе ID пользователя
+            const userId = tg ? tg.initDataUnsafe.user.id : Math.floor(Math.random() * 100000);
+            document.getElementById('referral-code').textContent = `PUG-${userId}`;
+            
+            document.getElementById('referrals-menu').style.display = 'block';
+        }
+
+        function hideReferrals() {
+            document.getElementById('referrals-menu').style.display = 'none';
+        }
+
+        function copyReferralCode() {
+            const code = document.getElementById('referral-code').textContent;
+            const url = `https://t.me/your_bot?start=${code}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showPopup('📋 Скопировано!', 'Реферальная ссылка скопирована в буфер обмена.');
+                });
+            } else {
+                // Fallback для старых браузеров
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showPopup('📋 Скопировано!', 'Реферальная ссылка скопирована в буфер обмена.');
+            }
+        }
+
+        // Меню настроек
+        function showSettings() {
+            // Устанавливаем текущие значения переключателей
+            document.getElementById('sound-toggle').checked = userData.settings.sound;
+            document.getElementById('vibration-toggle').checked = userData.settings.vibration;
+            document.getElementById('dark-mode-toggle').checked = userData.settings.darkMode;
+            
+            document.getElementById('settings-menu').style.display = 'block';
+        }
+
+        function hideSettings() {
+            // Сохраняем настройки
+            userData.settings.sound = document.getElementById('sound-toggle').checked;
+            userData.settings.vibration = document.getElementById('vibration-toggle').checked;
+            userData.settings.darkMode = document.getElementById('dark-mode-toggle').checked;
+            
+            saveUserData();
+            applySettings();
+            
+            document.getElementById('settings-menu').style.display = 'none';
+        }
+
+        function applySettings() {
+            if (userData.settings.darkMode) {
+                document.body.style.background = 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)';
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Вы уверены, что хотите сбросить весь прогресс? Это действие нельзя отменить.')) {
+                localStorage.removeItem('pugEmpireData');
+                location.reload();
+            }
+        }
+
         // Вспомогательные функции
         function showPopup(title, message) {
             document.getElementById('popup-title').textContent = title;
@@ -823,22 +1288,6 @@
             document.getElementById('popup-message').textContent = `Новый уровень: ${userData.level}\nПоздравляем! 🐶`;
             document.getElementById('bonus-popup').className = 'bonus-popup level-up';
             document.getElementById('bonus-popup').style.display = 'block';
-        }
-
-        function showLeaderboard() {
-            showPopup('🏆 Таблица лидеров', 'Откройте бота для просмотра полной таблицы лидеров!');
-        }
-
-        function showClans() {
-            showPopup('👥 Система кланов', 'Функция кланов доступна в основном интерфейсе бота!');
-        }
-
-        function showReferrals() {
-            showPopup('👤 Реферальная система', 'Приглашайте друзей и получайте бонусы! Откройте бота для получения ссылки.');
-        }
-
-        function showSettings() {
-            showPopup('⚙️ Настройки', 'Все настройки доступны в основном меню бота!');
         }
 
         // Инициализация
