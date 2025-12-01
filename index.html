@@ -2,12 +2,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>🐶 Pug Empire</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Основные стили */
+        /* Базовые стили */
         * {
             margin: 0;
             padding: 0;
@@ -24,83 +24,274 @@
             --warning: #FFA500;
             --dark: #2c3e50;
             --light: #f8f9fa;
+            --bg-gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --bg-dark-gradient: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
+            --bg-modern-gradient: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+            --bg-old-gradient: linear-gradient(135deg, #1e3c72, #2a5298, #6a11cb, #2575fc);
+            --bg-xmas-gradient: linear-gradient(135deg, #0a2e38 0%, #1a5f7a 100%);
+            --bg-halloween-gradient: linear-gradient(135deg, #2c0b0e 0%, #6b2c3e 100%);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-modern: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+            --font-old: 'MS Sans Serif', 'Tahoma', sans-serif;
+            --font-xmas: 'Mountains of Christmas', cursive;
+            --font-halloween: 'Creepster', cursive;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            font-family: var(--font-main);
+            background: var(--bg-gradient);
             color: white;
             overflow: hidden;
             user-select: none;
             height: 100vh;
-            transition: background 0.3s ease;
+            transition: background 0.5s ease, font-family 0.5s ease;
+            position: relative;
         }
         
-        body.dark-mode {
-            background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
+        /* Стили интерфейса */
+        body.modern-style {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            background: var(--bg-modern-gradient);
+            font-family: var(--font-modern);
+        }
+        
+        body.old-style {
+            --primary: #1e3c72;
+            --secondary: #2a5298;
+            --accent: #c0c0c0;
+            background: var(--bg-old-gradient);
+            font-family: var(--font-old);
+        }
+        
+        body.xmas-style {
+            --primary: #0a2e38;
+            --secondary: #1a5f7a;
+            --accent: #FF6B6B;
+            background: var(--bg-xmas-gradient);
+            font-family: var(--font-xmas);
+        }
+        
+        body.halloween-style {
+            --primary: #2c0b0e;
+            --secondary: #6b2c3e;
+            --accent: #ff9a00;
+            background: var(--bg-halloween-gradient);
+            font-family: var(--font-halloween);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 480px) {
+            .game-container {
+                padding: 10px !important;
+            }
+            
+            .header {
+                margin-bottom: 10px !important;
+            }
+            
+            .stat-card {
+                padding: 8px 10px !important;
+                min-width: 60px !important;
+                font-size: 12px !important;
+            }
+            
+            .stat-value {
+                font-size: 14px !important;
+            }
+            
+            .pug-container {
+                width: 220px !important;
+                height: 220px !important;
+            }
+            
+            .pug-image {
+                font-size: 80px !important;
+                border-width: 6px !important;
+            }
+            
+            .bottom-nav {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 5px !important;
+                margin-top: 10px !important;
+            }
+            
+            .nav-btn {
+                padding: 10px 5px !important;
+                font-size: 11px !important;
+            }
+            
+            .nav-btn i {
+                font-size: 14px !important;
+            }
+            
+            .menu-content {
+                padding: 15px !important;
+                margin: 10px !important;
+            }
+            
+            .skin-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            .withdraw-methods {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+            
+            .tab {
+                padding: 8px 12px !important;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .main-game {
+                gap: 15px !important;
+            }
+            
+            .pug-container {
+                width: 200px !important;
+                height: 200px !important;
+            }
+            
+            .pug-image {
+                font-size: 70px !important;
+            }
+            
+            .bottom-nav {
+                margin-top: 10px !important;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .pug-container {
+                width: 320px !important;
+                height: 320px !important;
+            }
+            
+            .pug-image {
+                font-size: 140px !important;
+            }
+        }
+        
+        /* Новогодние элементы */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            font-size: 14px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.7);
+            user-select: none;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .snowfall {
+            pointer-events: none;
+        }
+        
+        /* Хэллоуинские элементы */
+        .halloween-bat {
+            position: fixed;
+            font-size: 24px;
+            z-index: 999;
+            pointer-events: none;
+            animation: batFly 15s linear infinite;
+        }
+        
+        .pumpkin {
+            position: fixed;
+            font-size: 40px;
+            z-index: 998;
+            pointer-events: none;
+            cursor: none;
+        }
+        
+        .pumpkin-eyes {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff9a00;
+            border-radius: 50%;
+            top: 15px;
+        }
+        
+        .pumpkin-left-eye {
+            left: 20px;
+        }
+        
+        .pumpkin-right-eye {
+            right: 20px;
+        }
+        
+        @keyframes batFly {
+            0% {
+                transform: translateX(-50px) translateY(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw + 50px)) translateY(100px);
+                opacity: 0;
+            }
         }
         
         .game-container {
             width: 100%;
             height: 100%;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
         
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            flex-shrink: 0;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .stats {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            flex: 1;
         }
         
         .stat-card {
             background: rgba(255,255,255,0.15);
-            padding: 8px 12px;
-            border-radius: 12px;
+            padding: 10px 15px;
+            border-radius: 15px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
-            min-width: 70px;
+            min-width: 80px;
             text-align: center;
             transition: transform 0.2s ease, background 0.3s ease;
-            flex: 1;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.2);
         }
         
         .stat-value {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            margin-top: 3px;
-        }
-        
-        .skin-btn {
-            background: rgba(255,255,255,0.15);
-            padding: 8px 12px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            width: 70px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.3s ease;
-        }
-        
-        .skin-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-        
-        .skin-btn:active {
-            transform: scale(0.95);
+            margin-top: 5px;
         }
         
         .main-game {
@@ -109,53 +300,52 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            overflow: hidden;
-            min-height: 0;
+            gap: 30px;
+            padding: 10px;
         }
         
         .pug-container {
             position: relative;
-            width: min(220px, 65vw);
-            height: min(220px, 65vw);
-            flex-shrink: 0;
+            width: 280px;
+            height: 280px;
         }
         
         .pug-image {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
+            background: linear-gradient(135deg, var(--accent), #FFA500);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: min(80px, 20vw);
+            font-size: 120px;
             cursor: pointer;
             transition: all 0.1s ease;
-            border: 6px solid #FF8C00;
+            border: 8px solid #FF8C00;
             box-shadow: 
-                0 15px 30px rgba(0,0,0,0.3),
-                inset 0 8px 15px rgba(255,255,255,0.3);
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 10px 20px rgba(255,255,255,0.3);
             user-select: none;
             animation: float 3s ease-in-out infinite;
+            position: relative;
         }
         
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-10px); }
         }
         
         .pug-image:active {
             transform: scale(0.92);
             box-shadow: 
-                0 8px 15px rgba(0,0,0,0.2),
-                inset 0 4px 8px rgba(255,255,255,0.2);
+                0 10px 20px rgba(0,0,0,0.2),
+                inset 0 5px 10px rgba(255,255,255,0.2);
             animation: none;
         }
         
         .tap-effect {
             position: absolute;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             animation: floatUp 1s ease-out forwards;
             pointer-events: none;
@@ -169,247 +359,136 @@
                 opacity: 1;
             }
             100% {
-                transform: translateY(-80px) scale(0.5);
+                transform: translateY(-100px) scale(0.5);
                 opacity: 0;
             }
         }
         
         .energy-container {
             width: 100%;
-            max-width: 250px;
-            flex-shrink: 0;
+            max-width: 300px;
         }
         
         .energy-bar {
             width: 100%;
-            height: 16px;
+            height: 20px;
             background: rgba(255,255,255,0.2);
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
         }
         
         .energy-fill {
             height: 100%;
             background: linear-gradient(90deg, #00FF00, #00CC00);
-            border-radius: 8px;
+            border-radius: 10px;
             transition: width 0.3s ease;
             position: relative;
-            box-shadow: 0 0 8px rgba(0,255,0,0.5);
+            box-shadow: 0 0 10px rgba(0,255,0,0.5);
         }
         
         .bottom-nav {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 15px;
-            flex-shrink: 0;
-        }
-        
-        @media (max-width: 480px) {
-            .bottom-nav {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            gap: 10px;
+            margin-top: 20px;
         }
         
         .nav-btn {
             background: rgba(255,255,255,0.15);
             border: none;
-            padding: 12px 8px;
-            border-radius: 12px;
+            padding: 15px 10px;
+            border-radius: 15px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
-            font-size: 12px;
+            font-size: 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 5px;
             position: relative;
             overflow: hidden;
-            min-height: 60px;
         }
         
-        .nav-btn i {
-            font-size: 18px;
+        /* Стили для разных тем интерфейса */
+        body.modern-style .nav-btn {
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
         }
         
-        .taps-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 5px;
+        body.old-style .nav-btn {
+            border-radius: 5px;
+            background: #2a5298;
+            border: 2px outset #c0c0c0;
+            font-family: 'MS Sans Serif';
         }
         
-        /* Адаптивность для маленьких экранов */
-        @media (max-height: 700px) {
-            .pug-container {
-                width: min(180px, 55vw);
-                height: min(180px, 55vw);
-            }
-            
-            .pug-image {
-                font-size: min(70px, 18vw);
-            }
-            
-            .nav-btn {
-                min-height: 55px;
-                padding: 10px 6px;
-                font-size: 11px;
-            }
-            
-            .nav-btn i {
-                font-size: 16px;
-            }
-            
-            .skin-btn {
-                width: 60px;
-                padding: 6px 10px;
-            }
+        body.xmas-style .nav-btn {
+            background: rgba(255,107,107,0.3);
+            border: 2px solid #FF6B6B;
+            position: relative;
+            overflow: hidden;
         }
         
-        @media (max-height: 600px) {
-            .game-container {
-                padding: 10px;
-            }
-            
-            .pug-container {
-                width: min(160px, 50vw);
-                height: min(160px, 50vw);
-            }
-            
-            .pug-image {
-                font-size: min(60px, 16vw);
-            }
-            
-            .main-game {
-                gap: 12px;
-            }
-            
-            .bottom-nav {
-                gap: 6px;
-            }
+        body.xmas-style .nav-btn::before {
+            content: '❄';
+            position: absolute;
+            top: 2px;
+            right: 5px;
+            font-size: 10px;
+            opacity: 0.7;
         }
         
-        @media (max-height: 500px) {
-            .header {
-                margin-bottom: 5px;
-            }
-            
-            .stat-card {
-                padding: 6px 8px;
-                min-width: 60px;
-            }
-            
-            .stat-value {
-                font-size: 14px;
-            }
-            
-            .skin-btn {
-                width: 55px;
-                padding: 5px 8px;
-                font-size: 12px;
-            }
-            
-            .pug-container {
-                width: min(140px, 45vw);
-                height: min(140px, 45vw);
-            }
-            
-            .pug-image {
-                font-size: min(50px, 14vw);
-            }
-            
-            .energy-container {
-                max-width: 200px;
-            }
-            
-            .energy-bar {
-                height: 12px;
-            }
+        body.halloween-style .nav-btn {
+            background: rgba(255,154,0,0.3);
+            border: 2px solid #ff9a00;
+            font-family: 'Creepster';
         }
         
-        /* Горизонтальная ориентация */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .game-container {
-                flex-direction: row;
-                padding: 10px;
-            }
-            
-            .header {
-                flex-direction: column;
-                justify-content: flex-start;
-                margin-right: 10px;
-                margin-bottom: 0;
-                width: 120px;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 6px;
-            }
-            
-            .main-game {
-                flex: 1;
-                justify-content: space-around;
-            }
-            
-            .pug-container {
-                width: min(120px, 25vh);
-                height: min(120px, 25vh);
-            }
-            
-            .bottom-nav {
-                display: flex;
-                flex-direction: column;
-                margin-top: 0;
-                margin-left: 10px;
-                width: 80px;
-            }
-            
-            .nav-btn {
-                min-height: 50px;
-                margin-bottom: 6px;
-            }
-            
-            .skin-btn {
-                width: 50px;
-                margin-top: 10px;
-            }
-        }
-
-        /* Меню и попапы */
-        .menu-overlay {
-            position: fixed;
+        .nav-btn::before {
+            content: '';
+            position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 999;
-            display: none;
-            overflow-y: auto;
-            padding: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
         
-        .menu-content {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        .nav-btn:hover::before {
+            left: 100%;
         }
         
-        body.dark-mode .menu-content {
-            background: linear-gradient(135deg, var(--dark), #34495e);
+        .nav-btn:active {
+            background: rgba(255,255,255,0.25);
+            transform: scale(0.95);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .nav-btn:disabled::after {
+            content: " (Недоступно)";
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        
+        .withdraw-btn {
+            background: linear-gradient(135deg, var(--danger), #EE5A24);
+        }
+        
+        .upgrade-btn {
+            background: linear-gradient(135deg, var(--success), #45a049);
         }
         
         .bonus-popup {
@@ -428,6 +507,208 @@
             width: 400px;
             backdrop-filter: blur(10px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: popIn 0.3s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .popup-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+        
+        .level-up {
+            background: linear-gradient(135deg, var(--accent), #FFA500);
+            color: #000;
+        }
+        
+        .coming-soon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        .skin-unlocked {
+            background: linear-gradient(135deg, #FF4081, #F50057);
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 999;
+            display: none;
+            overflow-y: auto;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .menu-content {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        body.dark-mode .menu-content {
+            background: linear-gradient(135deg, var(--dark), #34495e);
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        
+        .upgrade-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .upgrade-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .upgrade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-cost {
+            background: var(--accent);
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #45a049);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 5px rgba(76,175,80,0.5);
+        }
+        
+        .skin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .skin-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .skin-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .skin-card.locked {
+            opacity: 0.5;
+            filter: grayscale(1);
+            cursor: not-allowed;
+        }
+        
+        .skin-card.locked:hover {
+            transform: none;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .skin-card.current {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+            background: rgba(255,215,0,0.1);
+        }
+        
+        .skin-emoji {
+            font-size: 40px;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .skin-card:hover .skin-emoji {
+            transform: scale(1.2);
+        }
+        
+        .skin-name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .skin-requirement {
+            font-size: 10px;
+            opacity: 0.8;
         }
         
         .loading-overlay {
@@ -459,6 +740,270 @@
             to { transform: rotate(360deg); }
         }
         
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: rgba(255,255,255,0.15);
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #45a049);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #EE5A24);
+            color: white;
+        }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), #FFA500);
+            color: #000;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .leaderboard-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .leaderboard-rank {
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+            background: var(--accent);
+            color: #000;
+            border-radius: 50%;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .leaderboard-user {
+            flex: 1;
+            margin: 0 15px;
+        }
+        
+        .leaderboard-score {
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .clan-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .clan-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .clan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .clan-members {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .referral-code {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+            border: 1px dashed var(--accent);
+        }
+        
+        .referral-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.3);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
         .notification {
             position: fixed;
             top: 20px;
@@ -488,12 +1033,230 @@
         .notification.error {
             border-left-color: var(--danger);
         }
+        
+        .withdraw-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .method-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .method-card:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .method-card.active {
+            border-color: var(--accent);
+            background: rgba(255,215,0,0.1);
+        }
+        
+        .method-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .clan-form, .withdraw-form {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .badge-new {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .badge-premium {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+        }
+
+        .withdraw-rates {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .rate-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .rate-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .rate-emoji {
+            font-size: 20px;
+        }
+
+        .rate-currency {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .rate-details {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .withdraw-processing, .withdraw-success {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-animation {
+            font-size: 60px;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .clan-member-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .clan-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .referral-bonuses {
+            background: rgba(255,215,0,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .min-amount-info {
+            background: rgba(255,100,100,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            border-left: 3px solid #FF6B6B;
+        }
+
+        .exchange-rate-display {
+            background: rgba(255,215,0,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .top-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .taps-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 100;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .avatar-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+        
+        /* Удаляем старый taps-display и заменяем на новый в центре */
+        .taps-center-display {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        /* Индикатор бонуса скина */
+        .skin-bonus-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,215,0,0.3);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 5px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--accent);
+            backdrop-filter: blur(5px);
+        }
     </style>
+    
+    <!-- Подключаем шрифты для тем -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Элементы темы -->
+    <div id="theme-elements"></div>
+    
     <div class="loading-overlay" id="loading-overlay">
         <div class="spinner"></div>
-        <div>Загрузка...</div>
+        <div>Синхронизация с сервером...</div>
     </div>
 
     <div class="notification" id="notification">
@@ -517,9 +1280,9 @@
                     <div class="stat-value" id="per-tap">1</div>
                 </div>
             </div>
-            <div class="skin-btn" onclick="showSkins()">
+            <div class="stat-card" onclick="showSkins()" style="cursor: pointer;">
                 <div id="current-skin">🐶</div>
-                <div style="font-size: 10px;">Скин</div>
+                <div style="font-size: 12px;">Скин</div>
             </div>
         </div>
         
@@ -528,27 +1291,26 @@
                 <div class="energy-bar">
                     <div class="energy-fill" id="energy-fill" style="width: 100%;"></div>
                 </div>
-                <div style="text-align: center; font-size: 12px;">
-                    ⚡ <span id="energy">100</span>/<span id="max-energy">100</span>
+                <div style="text-align: center; font-size: 14px;">
+                    ⚡ Энергия: <span id="energy">100</span>/<span id="max-energy">100</span>
                     <br>
-                    <small>1/<span id="regen-speed">10</span>с</small>
+                    <small>Восстановление: 1/<span id="regen-speed">10</span>с</small>
                 </div>
             </div>
             
             <div class="pug-container">
                 <div class="pug-image" id="tap-area">
                     🐶
+                    <div class="skin-bonus-indicator" id="skin-bonus-indicator" style="display: none;">
+                        +0%
+                    </div>
                 </div>
             </div>
             
-            <div style="text-align: center; max-width: 90%;">
-                <div style="font-size: 16px; font-weight: bold; margin-bottom: 2px;" id="skin-name">Начинающий мопс</div>
-                <div style="font-size: 12px; opacity: 0.8;">Тапай для заработка монет!</div>
-                <div class="taps-info">
-                    <span>👊 Всего тапов:</span>
-                    <span id="total-taps-count">0</span>
-                </div>
-                <div style="font-size: 11px; opacity: 0.6; margin-top: 4px;" id="next-skin">Следующий скин: 1,000 тапов</div>
+            <div style="text-align: center;">
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;" id="skin-name">Начинающий мопс</div>
+                <div class="taps-center-display">Всего тапов: <span id="total-taps-center">0</span></div>
+                <div style="font-size: 12px; opacity: 0.6; margin-top: 5px;" id="next-skin">Следующий скин: 1,000 тапов</div>
             </div>
         </div>
         
@@ -598,7 +1360,9 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div id="upgrades-list"></div>
+            <div id="upgrades-list">
+                <!-- Улучшения будут добавляться через JS -->
+            </div>
         </div>
     </div>
     
@@ -618,6 +1382,11 @@
                     <div class="stat-value" id="withdraw-balance">0</div>
                 </div>
                 
+                <!-- Курсы обмена -->
+                <div class="withdraw-rates" id="withdraw-rates">
+                    <!-- Курсы будут добавляться через JS -->
+                </div>
+                
                 <div style="opacity: 0.8; font-size: 14px; margin-bottom: 15px; text-align: center;">
                     💡 Наведите курсор на метод вывода для просмотра курса
                 </div>
@@ -634,18 +1403,18 @@
                     <div class="form-group">
                         <label class="form-label" for="crypto-method">Метод вывода:</label>
                         <select class="form-select" id="crypto-method" onchange="updateMinAmount('crypto')">
-                            <option value="ton">⚡ TON</option>
-                            <option value="trx">🔗 TRX</option>
-                            <option value="bnb">🟡 BNB</option>
-                            <option value="usdt">💵 USDT</option>
+                            <option value="ton">⚡ TON (The Open Network)</option>
+                            <option value="trx">🔗 TRX (TRON)</option>
+                            <option value="bnb">🟡 BNB (Binance Coin)</option>
+                            <option value="usdt">💵 USDT (TRC-20)</option>
                         </select>
                         <div class="min-amount-info" id="crypto-min-amount">
-                            Минимум: 200,000 монет
+                            Минимальная сумма вывода: 200,000 монет (10 TON)
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="crypto-amount">Сумма (монеты):</label>
+                        <label class="form-label" for="crypto-amount">Сумма вывода (монеты):</label>
                         <input type="number" class="form-input" id="crypto-amount" placeholder="Введите сумму" min="200000">
                         <div class="exchange-rate-display" id="crypto-exchange">
                             0 монет = 0.00 TON
@@ -654,7 +1423,7 @@
                     
                     <div class="form-group">
                         <label class="form-label" for="crypto-address">Адрес кошелька:</label>
-                        <input type="text" class="form-input" id="crypto-address" placeholder="Введите адрес">
+                        <input type="text" class="form-input" id="crypto-address" placeholder="Введите адрес вашего кошелька">
                     </div>
                     
                     <button class="btn btn-success" style="width: 100%;" onclick="submitWithdraw('crypto')">
@@ -673,12 +1442,12 @@
                             <option value="webmoney">🕸️ WebMoney</option>
                         </select>
                         <div class="min-amount-info" id="ewallet-min-amount">
-                            Минимум: 200,000 монет
+                            Минимальная сумма вывода: 200,000 монет (5 USD/RUB)
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="ewallet-amount">Сумма (монеты):</label>
+                        <label class="form-label" for="ewallet-amount">Сумма вывода (монеты):</label>
                         <input type="number" class="form-input" id="ewallet-amount" placeholder="Введите сумму" min="200000">
                         <div class="exchange-rate-display" id="ewallet-exchange">
                             0 монет = 0.00 USD
@@ -686,8 +1455,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="ewallet-account">Номер кошелька:</label>
-                        <input type="text" class="form-input" id="ewallet-account" placeholder="Введите номер">
+                        <label class="form-label" for="ewallet-account">Номер счета/кошелька:</label>
+                        <input type="text" class="form-input" id="ewallet-account" placeholder="Введите номер вашего кошелька">
                     </div>
                     
                     <button class="btn btn-success" style="width: 100%;" onclick="submitWithdraw('ewallet')">
@@ -701,17 +1470,17 @@
                     <div class="form-group">
                         <label class="form-label" for="game-method">Метод вывода:</label>
                         <select class="form-select" id="game-method" onchange="updateMinAmount('game')">
-                            <option value="valorant">🎯 Valorant</option>
-                            <option value="steam">🎯 Steam</option>
+                            <option value="valorant">🎯 Valorant Points</option>
+                            <option value="steam">🎯 Steam Funds</option>
                             <option value="robux">🎮 Robux</option>
                         </select>
                         <div class="min-amount-info" id="game-min-amount">
-                            Минимум: 1,000,000 монет
+                            Минимальная сумма вывода: 1,000,000 монет (10 Robux)
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="game-amount">Сумма (монеты):</label>
+                        <label class="form-label" for="game-amount">Сумма вывода (монеты):</label>
                         <input type="number" class="form-input" id="game-amount" placeholder="Введите сумму" min="1000000">
                         <div class="exchange-rate-display" id="game-exchange">
                             0 монет = 0.00 Robux
@@ -719,8 +1488,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="game-username">Игровой ник/ID:</label>
-                        <input type="text" class="form-input" id="game-username" placeholder="Введите никнейм">
+                        <label class="form-label" for="game-username">Игровой никнейм/ID:</label>
+                        <input type="text" class="form-input" id="game-username" placeholder="Введите ваш игровой никнейм или ID">
                     </div>
                     
                     <button class="btn btn-success" style="width: 100%;" onclick="submitWithdraw('game')">
@@ -748,7 +1517,9 @@
                 </div>
             </div>
             
-            <div class="skin-grid" id="skins-grid"></div>
+            <div class="skin-grid" id="skins-grid">
+                <!-- Скины будут добавляться через JS -->
+            </div>
         </div>
     </div>
     
@@ -769,15 +1540,25 @@
             </div>
             
             <div class="tab-content active" id="players-tab">
-                <div class="leaderboard-list" id="leaderboard-list"></div>
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <!-- Лидерборд будет добавляться через JS -->
+                </div>
             </div>
             
             <div class="tab-content" id="clans-tab">
-                <div class="leaderboard-list" id="clans-leaderboard"></div>
+                <div class="leaderboard-list" id="clans-leaderboard">
+                    <!-- Лидерборд кланов будет добавляться через JS -->
+                </div>
             </div>
             
             <div class="tab-content" id="taps-tab">
-                <div class="leaderboard-list" id="taps-leaderboard"></div>
+                <div class="leaderboard-list" id="taps-leaderboard">
+                    <!-- Лидерборд по тапам будет добавляться через JS -->
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center; opacity: 0.8; font-size: 12px;">
+                Обновляется каждые 5 минут
             </div>
         </div>
     </div>
@@ -801,34 +1582,37 @@
             
             <div class="tabs">
                 <div class="tab active" onclick="switchClanTab('list')">Все кланы</div>
-                <div class="tab" onclick="switchClanTab('create')">Создать</div>
+                <div class="tab" onclick="switchClanTab('create')">Создать клан</div>
                 <div class="tab" onclick="switchClanTab('my')">Мой клан</div>
             </div>
             
             <div class="tab-content active" id="clan-list-tab">
-                <div id="clans-list"></div>
+                <div id="clans-list">
+                    <!-- Кланы будут добавляться через JS -->
+                </div>
             </div>
             
             <div class="tab-content" id="clan-create-tab">
                 <div class="clan-form">
                     <div class="form-group">
                         <label class="form-label" for="clan-name">Название клана:</label>
-                        <input type="text" class="form-input" id="clan-name" placeholder="Введите название" maxlength="20">
+                        <input type="text" class="form-input" id="clan-name" placeholder="Введите название клана" maxlength="20">
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="clan-description">Описание:</label>
-                        <textarea class="form-input" id="clan-description" placeholder="Описание" rows="3" maxlength="100"></textarea>
+                        <label class="form-label" for="clan-description">Описание клана:</label>
+                        <textarea class="form-input" id="clan-description" placeholder="Введите описание клана" rows="3" maxlength="100"></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="clan-channel">Ссылка на канал:</label>
-                        <input type="url" class="form-input" id="clan-channel" placeholder="https://t.me/..." required>
-                        <small style="font-size: 12px; opacity: 0.8;">Вы должны быть администратором</small>
+                        <label class="form-label" for="clan-channel">Ссылка на Telegram канал (обязательно):</label>
+                        <input type="url" class="form-input" id="clan-channel" placeholder="https://t.me/your_channel" required>
+                        <small style="font-size: 12px; opacity: 0.8;">Вы должны быть администратором канала</small>
                     </div>
                     
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                        <div style="font-weight: bold; margin-bottom: 5px;">Стоимость: 1000 монет</div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">Стоимость создания: 1000 монет</div>
+                        <div style="font-size: 12px; opacity: 0.8;">После создания вы станете лидером клана</div>
                     </div>
                     
                     <button class="btn btn-success" style="width: 100%;" onclick="createClan()">
@@ -859,7 +1643,7 @@
             </div>
             
             <div style="text-align: center; margin-bottom: 20px;">
-                <div style="font-size: 16px; margin-bottom: 10px;">Приглашайте друзей!</div>
+                <div style="font-size: 16px; margin-bottom: 10px;">Приглашайте друзей и получайте бонусы!</div>
                 <div class="referral-code" id="referral-code">Загрузка...</div>
                 <button class="btn btn-accent" style="width: 100%; margin-top: 10px;" onclick="copyReferralCode()">
                     <i class="fas fa-copy"></i> Скопировать ссылку
@@ -880,9 +1664,31 @@
             <div class="referral-bonuses">
                 <strong>🎁 Бонусы за рефералов</strong>
                 <div style="font-size: 14px; margin-top: 10px;">
-                    • <strong>500 монет</strong> за каждого друга<br>
-                    • <strong>+1 к силе тапа</strong> за реферала<br>
-                    • <strong>Эксклюзивные скины</strong> за 10+ рефералов
+                    • <strong>500 монет</strong> за каждого приглашенного друга<br>
+                    • <strong>+1 к силе тапа</strong> за каждого реферала<br>
+                    • <strong>Эксклюзивные скины</strong> за 10+ рефералов<br>
+                    • <strong>Бонусные уровни</strong> за активных рефералов
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <strong>📊 Прогресс бонусов</strong>
+                    <div style="margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>5 рефералов</span>
+                            <span style="color: var(--accent);">+2,500 монет</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ref-progress-5" style="width: 0%;"></div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; margin-top: 15px;">
+                            <span>10 рефералов</span>
+                            <span style="color: var(--accent);">Эксклюзивный скин! 🎭</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ref-progress-10" style="width: 0%;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -901,6 +1707,7 @@
             <div class="settings-item">
                 <div>
                     <strong><i class="fas fa-volume-up"></i> Звуки</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Включить звуковые эффекты</div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="sound-toggle" checked>
@@ -911,6 +1718,7 @@
             <div class="settings-item">
                 <div>
                     <strong><i class="fas fa-vibrate"></i> Вибрация</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Включить тактильную отдачу</div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="vibration-toggle" checked>
@@ -921,9 +1729,35 @@
             <div class="settings-item">
                 <div>
                     <strong><i class="fas fa-moon"></i> Ночной режим</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Темная тема интерфейса</div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="settings-item">
+                <div>
+                    <strong><i class="fas fa-paint-brush"></i> Стиль интерфейса</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Выберите визуальный стиль</div>
+                </div>
+                <select class="form-select" id="interface-style" style="width: 150px; margin-left: 10px;" onchange="changeInterfaceStyle(this.value)">
+                    <option value="default">Стандартный</option>
+                    <option value="modern">Современный</option>
+                    <option value="old">Старый (Windows XP)</option>
+                    <option value="xmas">Новогодний</option>
+                    <option value="halloween">Хэллоуинский</option>
+                </select>
+            </div>
+            
+            <div class="settings-item">
+                <div>
+                    <strong><i class="fas fa-bell"></i> Уведомления</strong>
+                    <div style="font-size: 12px; opacity: 0.8;">Получать уведомления</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="notifications-toggle" checked>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -935,6 +1769,12 @@
             <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="resetProgress()">
                 <i class="fas fa-trash"></i> Сбросить прогресс
             </button>
+            
+            <div style="text-align: center; margin-top: 20px; opacity: 0.7; font-size: 12px;">
+                Версия 3.1.0<br>
+                Pug Empire © 2024-2025<br>
+                Бот: @MelryBot
+            </div>
         </div>
     </div>
 
@@ -945,33 +1785,70 @@
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
         const JSONBIN_UPDATE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-        // Упрощенная конфигурация для быстрой загрузки
+        // Курсы обмена для вывода (завышенные)
         const EXCHANGE_RATES = {
+            robux: { rate: 100000, min_amount: 10, currency: "Robux", emoji: "🎮", min_coins: 1000000 },
+            steam: { rate: 50000, min_amount: 5, currency: "USD Steam", emoji: "🎯", min_coins: 250000 },
+            valorant: { rate: 80000, min_amount: 5, currency: "Valorant Points", emoji: "🎯", min_coins: 400000 },
             ton: { rate: 20000, min_amount: 10, currency: "TON", emoji: "⚡", min_coins: 200000 },
             trx: { rate: 25000, min_amount: 10, currency: "TRX", emoji: "🔗", min_coins: 250000 },
+            bnb: { rate: 30000, min_amount: 0.1, currency: "BNB", emoji: "🟡", min_coins: 3000 },
             usdt: { rate: 20000, min_amount: 10, currency: "USDT", emoji: "💵", min_coins: 200000 },
-            qiwi: { rate: 40000, min_amount: 5, currency: "RUB", emoji: "🥝", min_coins: 200000 },
-            robux: { rate: 100000, min_amount: 10, currency: "Robux", emoji: "🎮", min_coins: 1000000 }
+            qiwi: { rate: 40000, min_amount: 5, currency: "RUB Qiwi", emoji: "🥝", min_coins: 200000 },
+            yoomoney: { rate: 40000, min_amount: 5, currency: "RUB ЮMoney", emoji: "💳", min_coins: 200000 },
+            webmoney: { rate: 45000, min_amount: 5, currency: "RUB WebMoney", emoji: "🕸️", min_coins: 225000 }
         };
 
-        // Упрощенный список скинов (первые 15 для быстрой загрузки)
+        // Улучшенный список скинов с бонусами и темами
         const PUG_SKINS = [
-            {id: 1, name: "Начинающий мопс", taps_required: 0, emoji: "🐶"},
-            {id: 2, name: "Опытный мопс", taps_required: 1000, emoji: "⭐"},
-            {id: 3, name: "Огненный мопс", taps_required: 5000, emoji: "🔥"},
-            {id: 4, name: "Алмазный мопс", taps_required: 15000, emoji: "💎"},
-            {id: 5, name: "Королевский мопс", taps_required: 30000, emoji: "👑"},
-            {id: 6, name: "Космический мопс", taps_required: 60000, emoji: "🚀"},
-            {id: 7, name: "Галактический мопс", taps_required: 120000, emoji: "🌌"},
-            {id: 8, name: "Легендарный мопс", taps_required: 250000, emoji: "💫"},
-            {id: 9, name: "Мифический мопс", taps_required: 500000, emoji: "🎭"},
-            {id: 10, name: "Божественный мопс", taps_required: 1000000, emoji: "🌟"}
+            {id: 1, name: "Начинающий мопс", taps_required: 0, emoji: "🐶", 
+             bonus: { multiplier: 1.0, energyBonus: 0, tapBonus: 0 },
+             theme: {primary: '#667eea', secondary: '#764ba2', accent: '#FFD700', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}},
+            
+            {id: 2, name: "Опытный мопс", taps_required: 1000, emoji: "⭐", 
+             bonus: { multiplier: 1.1, energyBonus: 10, tapBonus: 1 },
+             theme: {primary: '#FFA500', secondary: '#FF8C00', accent: '#FFD700', bg: 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)'}},
+            
+            {id: 3, name: "Огненный мопс", taps_required: 5000, emoji: "🔥", 
+             bonus: { multiplier: 1.2, energyBonus: 20, tapBonus: 2 },
+             theme: {primary: '#FF4500', secondary: '#FF0000', accent: '#FFA500', bg: 'linear-gradient(135deg, #FF4500 0%, #FF0000 100%)'}},
+            
+            {id: 4, name: "Алмазный мопс", taps_required: 15000, emoji: "💎", 
+             bonus: { multiplier: 1.3, energyBonus: 30, tapBonus: 3 },
+             theme: {primary: '#00BFFF', secondary: '#1E90FF', accent: '#87CEEB', bg: 'linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%)'}},
+            
+            {id: 5, name: "Королевский мопс", taps_required: 30000, emoji: "👑", 
+             bonus: { multiplier: 1.5, energyBonus: 50, tapBonus: 5 },
+             theme: {primary: '#FFD700', secondary: '#FFA500', accent: '#FF6347', bg: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'}},
+            
+            {id: 6, name: "Космический мопс", taps_required: 60000, emoji: "🚀", 
+             bonus: { multiplier: 1.7, energyBonus: 70, tapBonus: 7 },
+             theme: {primary: '#4169E1', secondary: '#000080', accent: '#00FFFF', bg: 'linear-gradient(135deg, #4169E1 0%, #000080 100%)'}},
+            
+            {id: 7, name: "Галактический мопс", taps_required: 120000, emoji: "🌌", 
+             bonus: { multiplier: 2.0, energyBonus: 100, tapBonus: 10 },
+             theme: {primary: '#4B0082', secondary: '#8A2BE2', accent: '#9370DB', bg: 'linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%)'}},
+            
+            {id: 8, name: "Легендарный мопс", taps_required: 250000, emoji: "💫", 
+             bonus: { multiplier: 2.5, energyBonus: 150, tapBonus: 15 },
+             theme: {primary: '#FF1493', secondary: '#FF69B4', accent: '#FFB6C1', bg: 'linear-gradient(135deg, #FF1493 0%, #FF69B4 100%)'}},
+            
+            {id: 9, name: "Мифический мопс", taps_required: 500000, emoji: "🎭", 
+             bonus: { multiplier: 3.0, energyBonus: 200, tapBonus: 20 },
+             theme: {primary: '#32CD32', secondary: '#228B22', accent: '#90EE90', bg: 'linear-gradient(135deg, #32CD32 0%, #228B22 100%)'}},
+            
+            {id: 10, name: "Божественный мопс", taps_required: 1000000, emoji: "🌟", 
+             bonus: { multiplier: 4.0, energyBonus: 300, tapBonus: 30 },
+             theme: {primary: '#FFD700', secondary: '#FFA500', accent: '#FFFFFF', bg: 'linear-gradient(135deg, #FFD700 0%, #FFFFFF 100%)'}}
         ];
 
         const UPGRADES = {
             tap_power: {name: "💪 Сила тапа", description: "Увеличивает монеты за клик", base_cost: 50, cost_multiplier: 1.5, effect: 1, max_level: 100},
             energy_capacity: {name: "⚡ Ёмкость энергии", description: "Увеличивает максимальную энергию", base_cost: 100, cost_multiplier: 2.0, effect: 10, max_level: 50},
-            energy_regen: {name: "🔋 Регенерация", description: "Ускоряет восстановление энергии", base_cost: 200, cost_multiplier: 2.5, effect: -1, max_level: 30}
+            energy_regen: {name: "🔋 Регенерация", description: "Ускоряет восстановление энергии", base_cost: 200, cost_multiplier: 2.5, effect: -1, max_level: 30},
+            critical_chance: {name: "🎯 Шанс крита", description: "Увеличивает шанс критического удара", base_cost: 300, cost_multiplier: 3.0, effect: 0.5, max_level: 40},
+            critical_multiplier: {name: "💥 Множитель крита", description: "Увеличивает множитель критического удара", base_cost: 500, cost_multiplier: 4.0, effect: 0.1, max_level: 25},
+            auto_tapper: {name: "🤖 Авто-таппер", description: "Автоматически тапает каждые 10 секунд", base_cost: 1000, cost_multiplier: 5.0, effect: 1, max_level: 20}
         };
 
         let userData = {
@@ -985,146 +1862,231 @@
             upgrades: {},
             pug_skin: 1,
             referrals_count: 0,
+            referral_bonus_claimed: false,
+            referrer_id: null,
             clan_id: null,
+            clan_name: null,
+            last_tap_time: new Date().toISOString(),
             last_energy_update: new Date().toISOString(),
+            created_at: new Date().toISOString(),
             settings: {
                 sound: true,
                 vibration: true,
-                darkMode: false
+                darkMode: false,
+                notifications: true,
+                interfaceStyle: 'default'
             }
         };
 
         let tg = window.Telegram.WebApp;
         let userId = null;
+        let allUsers = [];
+        let allClans = [];
+        let currentThemeElements = [];
 
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             tg.expand();
             tg.enableClosingConfirmation();
             userId = tg.initDataUnsafe.user.id.toString();
+            
+            // Получаем дополнительные данные из Telegram
+            if (tg.initDataUnsafe.user.first_name) {
+                userData.first_name = tg.initDataUnsafe.user.first_name;
+            }
+            if (tg.initDataUnsafe.user.last_name) {
+                userData.last_name = tg.initDataUnsafe.user.last_name;
+            }
+            if (tg.initDataUnsafe.user.username) {
+                userData.username = tg.initDataUnsafe.user.username;
+            }
         } else {
+            // Для тестирования без Telegram
             userId = 'local_user_' + Math.floor(Math.random() * 1000000);
         }
 
-        // Упрощенная функция восстановления энергии
-        function restoreEnergyBasedOnTime() {
+        // Функция восстановления энергии на основе времени
+        function restoreEnergyBasedOnTime(userData) {
             try {
                 const now = new Date();
                 const lastUpdate = new Date(userData.last_energy_update);
                 
                 if (isNaN(lastUpdate.getTime())) {
-                    userData.last_energy_update = now.toISOString();
-                    return;
+                    return {
+                        ...userData,
+                        last_energy_update: now.toISOString()
+                    };
                 }
                 
                 const timeDiff = (now - lastUpdate) / 1000;
                 
-                if (timeDiff > 0) {
-                    const energyToAdd = Math.floor(timeDiff / userData.energy_regen_speed);
-                    
-                    if (energyToAdd > 0) {
-                        userData.energy = Math.min(userData.max_energy, userData.energy + energyToAdd);
-                        const usedTime = energyToAdd * userData.energy_regen_speed;
-                        userData.last_energy_update = new Date(lastUpdate.getTime() + usedTime * 1000).toISOString();
-                    }
+                if (timeDiff <= 0) {
+                    return userData;
                 }
+                
+                const energyRegenSpeed = userData.energy_regen_speed || 10;
+                const currentEnergy = userData.energy || 0;
+                const maxEnergy = userData.max_energy || 100;
+                
+                const energyToAdd = Math.floor(timeDiff / energyRegenSpeed);
+                
+                if (energyToAdd > 0) {
+                    const newEnergy = Math.min(maxEnergy, currentEnergy + energyToAdd);
+                    const usedTime = energyToAdd * energyRegenSpeed;
+                    const newLastUpdate = new Date(lastUpdate.getTime() + usedTime * 1000);
+                    
+                    return {
+                        ...userData,
+                        energy: newEnergy,
+                        last_energy_update: newLastUpdate.toISOString()
+                    };
+                }
+                
+                return userData;
             } catch (error) {
                 console.error('Ошибка восстановления энергии:', error);
+                return userData;
             }
         }
 
-        // Быстрая загрузка данных
+        // Загрузка данных из JSONBin.io
         async function loadUserData() {
             try {
+                console.log('🔍 Загрузка данных пользователя...');
                 const response = await fetch(JSONBIN_URL, {
                     headers: {
                         "X-Master-Key": JSONBIN_API_KEY
                     }
                 });
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    const users = data.record.users || {};
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const users = data.record.users || {};
+                const clans = data.record.clans || {};
+                allUsers = users; // Сохраняем всех пользователей
+                allClans = clans; // Сохраняем все кланы
+                
+                if (users[userId]) {
+                    console.log('✅ Пользователь найден в базе');
+                    let savedData = users[userId];
                     
-                    if (users[userId]) {
-                        let savedData = users[userId];
-                        restoreEnergyBasedOnTime();
-                        
-                        if (typeof savedData.upgrades === 'string') {
-                            try {
-                                savedData.upgrades = JSON.parse(savedData.upgrades);
-                            } catch (e) {
-                                savedData.upgrades = {};
-                            }
+                    savedData = restoreEnergyBasedOnTime(savedData);
+                    
+                    if (typeof savedData.upgrades === 'string') {
+                        try {
+                            savedData.upgrades = JSON.parse(savedData.upgrades);
+                        } catch (e) {
+                            savedData.upgrades = {};
                         }
-                        
-                        // Быстрое обновление основных данных
-                        userData.coins = savedData.coins || 0;
-                        userData.per_tap = savedData.per_tap || 1;
-                        userData.energy = savedData.energy || 100;
-                        userData.max_energy = savedData.max_energy || 100;
-                        userData.level = savedData.level || 1;
-                        userData.total_taps = savedData.total_taps || 0;
-                        userData.pug_skin = savedData.pug_skin || 1;
-                        userData.referrals_count = savedData.referrals_count || 0;
-                        userData.clan_id = savedData.clan_id || null;
-                        userData.upgrades = savedData.upgrades || {};
-                        userData.last_energy_update = savedData.last_energy_update || new Date().toISOString();
                     }
+                    
+                    // Обновляем данные пользователя
+                    userData = { 
+                        ...userData, 
+                        ...savedData
+                    };
+                    
+                    // Синхронизируем клан
+                    if (userData.clan_id && clans[userData.clan_id]) {
+                        userData.clan_name = clans[userData.clan_id].name;
+                    }
+                    
+                    // Синхронизируем рефералы
+                    userData.referrals_count = Object.values(users).filter(u => u.referrer_id === userId).length;
+                    
+                } else {
+                    console.log('❌ Пользователь не найден, создаем нового');
+                    userData.last_energy_update = new Date().toISOString();
+                    await saveUserData();
                 }
                 
                 updateDisplay();
+                applySettings();
+                loadWithdrawRates();
+                updateExchangeDisplay();
+                applySkinTheme();
                 document.getElementById('loading-overlay').style.display = 'none';
                 
             } catch (error) {
-                console.error('Ошибка загрузки:', error);
+                console.error('❌ Ошибка загрузки данных:', error);
                 document.getElementById('loading-overlay').style.display = 'none';
-                updateDisplay();
+                showNotification('Не удалось загрузить данные. Используется локальная версия.', 'error');
             }
         }
 
-        // Быстрое сохранение данных
+        // Сохранение данных в JSONBin.io
         async function saveUserData() {
             try {
+                console.log('💾 Сохранение данных...');
+                
                 const response = await fetch(JSONBIN_URL, {
                     headers: {
                         "X-Master-Key": JSONBIN_API_KEY
                     }
                 });
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    const users = data.record.users || {};
-                    
-                    users[userId] = {
-                        coins: userData.coins,
-                        per_tap: userData.per_tap,
-                        energy: userData.energy,
-                        max_energy: userData.max_energy,
-                        energy_regen_speed: userData.energy_regen_speed,
-                        level: userData.level,
-                        total_taps: userData.total_taps,
-                        last_energy_update: userData.last_energy_update,
-                        upgrades: JSON.stringify(userData.upgrades),
-                        referrals_count: userData.referrals_count,
-                        clan_id: userData.clan_id,
-                        pug_skin: userData.pug_skin,
-                        settings: userData.settings
-                    };
-                    
-                    await fetch(JSONBIN_UPDATE_URL, {
-                        method: 'PUT',
-                        headers: {
-                            "X-Master-Key": JSONBIN_API_KEY,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            ...data.record,
-                            users: users
-                        })
-                    });
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки: ${response.status}`);
                 }
+                
+                const data = await response.json();
+                const users = data.record.users || {};
+                
+                const userDataToSave = {
+                    username: userData.username || `user_${userId}`,
+                    first_name: userData.first_name || "",
+                    last_name: userData.last_name || "",
+                    coins: userData.coins || 0,
+                    per_tap: userData.per_tap || 1,
+                    energy: userData.energy || 100,
+                    max_energy: userData.max_energy || 100,
+                    energy_regen_speed: userData.energy_regen_speed || 10,
+                    last_tap_time: userData.last_tap_time || new Date().toISOString(),
+                    level: userData.level || 1,
+                    total_taps: userData.total_taps || 0,
+                    last_energy_update: userData.last_energy_update || new Date().toISOString(),
+                    upgrades: JSON.stringify(userData.upgrades || {}),
+                    referrals_count: userData.referrals_count || 0,
+                    referral_bonus_claimed: userData.referral_bonus_claimed || false,
+                    referrer_id: userData.referrer_id || null,
+                    clan_id: userData.clan_id || null,
+                    clan_name: userData.clan_name || null,
+                    pug_skin: userData.pug_skin || 1,
+                    created_at: userData.created_at || new Date().toISOString(),
+                    settings: userData.settings || {
+                        sound: true,
+                        vibration: true,
+                        darkMode: false,
+                        notifications: true,
+                        interfaceStyle: 'default'
+                    }
+                };
+                
+                users[userId] = userDataToSave;
+                
+                const updateResponse = await fetch(JSONBIN_UPDATE_URL, {
+                    method: 'PUT',
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        ...data.record,
+                        users: users
+                    })
+                });
+                
+                if (!updateResponse.ok) {
+                    throw new Error(`Ошибка сохранения: ${updateResponse.status}`);
+                }
+                
+                console.log('✅ Данные успешно сохранены');
+                
             } catch (error) {
-                console.error('Ошибка сохранения:', error);
+                console.error('❌ Ошибка сохранения данных:', error);
+                showNotification('Данные сохранены локально. Синхронизация при следующем подключении.', 'error');
             }
         }
 
@@ -1139,13 +2101,31 @@
             document.getElementById('energy-fill').style.width = (userData.energy / userData.max_energy * 100) + '%';
             document.getElementById('withdraw-balance').textContent = Math.floor(userData.coins).toLocaleString();
             document.getElementById('total-taps').textContent = userData.total_taps.toLocaleString();
-            document.getElementById('total-taps-count').textContent = userData.total_taps.toLocaleString();
+            document.getElementById('total-taps-center').textContent = userData.total_taps.toLocaleString();
             document.getElementById('referrals-count').textContent = userData.referrals_count;
             document.getElementById('referrals-earned').textContent = (userData.referrals_count * 500).toLocaleString();
             
+            // Обновляем информацию о клане
+            if (userData.clan_name) {
+                document.getElementById('user-clan').textContent = userData.clan_name;
+            } else {
+                document.getElementById('user-clan').textContent = 'Не в клане';
+            }
+            
+            // Обновляем скин
             const currentSkin = getCurrentSkin();
             document.getElementById('current-skin').textContent = currentSkin.emoji;
             document.getElementById('skin-name').textContent = currentSkin.name;
+            
+            // Обновляем бонус скина
+            const skinBonus = currentSkin.bonus;
+            if (skinBonus.multiplier > 1.0) {
+                const bonusPercent = Math.round((skinBonus.multiplier - 1) * 100);
+                document.getElementById('skin-bonus-indicator').textContent = `+${bonusPercent}%`;
+                document.getElementById('skin-bonus-indicator').style.display = 'block';
+            } else {
+                document.getElementById('skin-bonus-indicator').style.display = 'none';
+            }
             
             const nextSkin = getNextSkin();
             if (nextSkin) {
@@ -1154,7 +2134,14 @@
                 document.getElementById('next-skin').textContent = 'Максимальный скин unlocked!';
             }
             
-            const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
+            // Обновляем прогресс рефералов
+            const refProgress5 = Math.min(100, (userData.referrals_count / 5) * 100);
+            const refProgress10 = Math.min(100, (userData.referrals_count / 10) * 100);
+            document.getElementById('ref-progress-5').style.width = `${refProgress5}%`;
+            document.getElementById('ref-progress-10').style.width = `${refProgress10}%`;
+            
+            // Обновляем реферальную ссылку (правильная ссылка на бота)
+            const refLink = `https://t.me/MelryBot?start=ref_${userId}`;
             document.getElementById('referral-code').textContent = refLink;
         }
 
@@ -1168,12 +2155,155 @@
                 document.body.classList.remove('dark-mode');
             }
             
+            // Применяем стиль интерфейса
+            changeInterfaceStyle(settings.interfaceStyle || 'default');
+            
             document.getElementById('sound-toggle').checked = settings.sound !== false;
             document.getElementById('vibration-toggle').checked = settings.vibration !== false;
             document.getElementById('dark-mode-toggle').checked = settings.darkMode === true;
+            document.getElementById('notifications-toggle').checked = settings.notifications !== false;
+            document.getElementById('interface-style').value = settings.interfaceStyle || 'default';
         }
 
-        // Система скинов
+        // Смена стиля интерфейса
+        function changeInterfaceStyle(style) {
+            // Удаляем все стили
+            document.body.classList.remove('modern-style', 'old-style', 'xmas-style', 'halloween-style');
+            
+            // Удаляем старые элементы темы
+            currentThemeElements.forEach(el => {
+                if (el && el.parentNode) {
+                    el.parentNode.removeChild(el);
+                }
+            });
+            currentThemeElements = [];
+            
+            // Применяем новый стиль
+            if (style !== 'default') {
+                document.body.classList.add(style + '-style');
+            }
+            
+            // Сохраняем настройки
+            userData.settings.interfaceStyle = style;
+            saveUserData();
+            
+            // Добавляем элементы темы
+            if (style === 'xmas') {
+                createSnowfall();
+            } else if (style === 'halloween') {
+                createHalloweenElements();
+            }
+            
+            // Если включена специальная тема, отключаем тему скина
+            if (style === 'xmas' || style === 'halloween') {
+                removeSkinTheme();
+            } else {
+                applySkinTheme();
+            }
+        }
+
+        // Создание снегопада для новогодней темы
+        function createSnowfall() {
+            const container = document.getElementById('theme-elements');
+            container.classList.add('snowfall');
+            
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = '❄';
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                snowflake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.animationTimingFunction = 'linear';
+                snowflake.style.animationName = 'fall';
+                
+                // CSS для падения
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes fall {
+                        0% { transform: translateY(-10px) rotate(0deg); }
+                        100% { transform: translateY(100vh) rotate(360deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                container.appendChild(snowflake);
+                currentThemeElements.push(snowflake);
+            }
+        }
+
+        // Создание хэллоуинских элементов
+        function createHalloweenElements() {
+            const container = document.getElementById('theme-elements');
+            
+            // Летучие мыши
+            for (let i = 0; i < 5; i++) {
+                const bat = document.createElement('div');
+                bat.className = 'halloween-bat';
+                bat.innerHTML = '🦇';
+                bat.style.top = Math.random() * 100 + 'vh';
+                bat.style.left = '-50px';
+                bat.style.animationDelay = (Math.random() * 10) + 's';
+                
+                container.appendChild(bat);
+                currentThemeElements.push(bat);
+            }
+            
+            // Тыква
+            const pumpkin = document.createElement('div');
+            pumpkin.className = 'pumpkin';
+            pumpkin.innerHTML = '🎃';
+            pumpkin.style.bottom = '20px';
+            pumpkin.style.right = '20px';
+            
+            // Глаза тыквы
+            const leftEye = document.createElement('div');
+            leftEye.className = 'pumpkin-eyes pumpkin-left-eye';
+            
+            const rightEye = document.createElement('div');
+            rightEye.className = 'pumpkin-eyes pumpkin-right-eye';
+            
+            pumpkin.appendChild(leftEye);
+            pumpkin.appendChild(rightEye);
+            
+            // Слежение за курсором
+            document.addEventListener('mousemove', function(e) {
+                const eyes = pumpkin.querySelectorAll('.pumpkin-eyes');
+                eyes.forEach(eye => {
+                    const rect = pumpkin.getBoundingClientRect();
+                    const eyeX = rect.left + (eye.classList.contains('pumpkin-left-eye') ? 25 : rect.width - 25);
+                    const eyeY = rect.top + 25;
+                    
+                    const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+                    const distance = Math.min(3, Math.sqrt(Math.pow(e.clientX - eyeX, 2) + Math.pow(e.clientY - eyeY, 2)) / 100);
+                    
+                    eye.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+                });
+            });
+            
+            // Для мобильных устройств
+            document.addEventListener('touchmove', function(e) {
+                const touch = e.touches[0];
+                const eyes = pumpkin.querySelectorAll('.pumpkin-eyes');
+                eyes.forEach(eye => {
+                    const rect = pumpkin.getBoundingClientRect();
+                    const eyeX = rect.left + (eye.classList.contains('pumpkin-left-eye') ? 25 : rect.width - 25);
+                    const eyeY = rect.top + 25;
+                    
+                    const angle = Math.atan2(touch.clientY - eyeY, touch.clientX - eyeX);
+                    const distance = Math.min(3, Math.sqrt(Math.pow(touch.clientX - eyeX, 2) + Math.pow(touch.clientY - eyeY, 2)) / 100);
+                    
+                    eye.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+                });
+            });
+            
+            container.appendChild(pumpkin);
+            currentThemeElements.push(pumpkin);
+        }
+
+        // Система скинов с бонусами и темами
         function getCurrentSkin() {
             return PUG_SKINS.find(skin => skin.id === userData.pug_skin) || PUG_SKINS[0];
         }
@@ -1183,34 +2313,102 @@
             return PUG_SKINS[currentIndex + 1];
         }
 
+        function applySkinTheme() {
+            const currentSkin = getCurrentSkin();
+            const interfaceStyle = userData.settings.interfaceStyle || 'default';
+            
+            // Не применяем тему скина если включены специальные темы
+            if (interfaceStyle === 'xmas' || interfaceStyle === 'halloween') {
+                return;
+            }
+            
+            const theme = currentSkin.theme;
+            
+            // Применяем цвета темы
+            document.documentElement.style.setProperty('--primary', theme.primary);
+            document.documentElement.style.setProperty('--secondary', theme.secondary);
+            document.documentElement.style.setProperty('--accent', theme.accent);
+            
+            // Обновляем градиент фона
+            document.body.style.background = theme.bg;
+            
+            // Обновляем иконку в кнопке тапа
+            document.getElementById('tap-area').innerHTML = `
+                ${currentSkin.emoji}
+                <div class="skin-bonus-indicator" id="skin-bonus-indicator" style="display: none;">
+                    +${Math.round((currentSkin.bonus.multiplier - 1) * 100)}%
+                </div>
+            `;
+        }
+
+        function removeSkinTheme() {
+            // Возвращаем стандартные цвета
+            document.documentElement.style.setProperty('--primary', '#667eea');
+            document.documentElement.style.setProperty('--secondary', '#764ba2');
+            document.documentElement.style.setProperty('--accent', '#FFD700');
+            
+            // Возвращаем стандартный градиент
+            document.body.style.background = 'var(--bg-gradient)';
+        }
+
         function checkSkinUnlocks() {
             const unlockedSkin = PUG_SKINS.filter(skin => userData.total_taps >= skin.taps_required)
                                          .reduce((max, skin) => skin.id > max.id ? skin : max, PUG_SKINS[0]);
             
             if (unlockedSkin.id > userData.pug_skin) {
                 userData.pug_skin = unlockedSkin.id;
+                applySkinTheme();
                 showSkinUnlocked(unlockedSkin);
+                
+                // Применяем бонус скина
+                const skinBonus = unlockedSkin.bonus;
+                if (skinBonus.tapBonus > 0) {
+                    userData.per_tap += skinBonus.tapBonus;
+                }
+                if (skinBonus.energyBonus > 0) {
+                    userData.max_energy += skinBonus.energyBonus;
+                }
             }
         }
 
         function showSkinUnlocked(skin) {
             document.getElementById('popup-title').textContent = '🎉 НОВЫЙ СКИН!';
-            document.getElementById('popup-message').textContent = `Разблокирован: ${skin.emoji} ${skin.name}`;
+            document.getElementById('popup-message').innerHTML = `
+                Разблокирован: ${skin.emoji} ${skin.name}<br>
+                <strong>Бонус: +${Math.round((skin.bonus.multiplier - 1) * 100)}% к доходу</strong><br>
+                ${skin.bonus.energyBonus > 0 ? `+${skin.bonus.energyBonus} ⚡ энергии<br>` : ''}
+                ${skin.bonus.tapBonus > 0 ? `+${skin.bonus.tapBonus} 👊 силы тапа` : ''}
+            `;
+            document.getElementById('bonus-popup').className = 'bonus-popup skin-unlocked';
             document.getElementById('bonus-popup').style.display = 'block';
         }
 
-        // Обработчик тапов
+        // Обработчик тапов с учетом бонуса скина
         async function handleTap(event) {
-            restoreEnergyBasedOnTime();
+            userData = restoreEnergyBasedOnTime(userData);
             
             if (userData.energy >= 1) {
+                const currentSkin = getCurrentSkin();
                 let earned = userData.per_tap;
+                
+                // Применяем бонус скина
+                earned = Math.floor(earned * currentSkin.bonus.multiplier);
+                
                 userData.coins += earned;
                 userData.energy--;
                 userData.total_taps++;
+                userData.last_tap_time = new Date().toISOString();
                 userData.last_energy_update = new Date().toISOString();
                 
                 createTapEffect(event, `+${earned} 💎`);
+                
+                let critChance = 5 + (userData.upgrades.critical_chance || 0) * 0.5;
+                if (Math.random() < critChance / 100) {
+                    let critMultiplier = 2 + (userData.upgrades.critical_multiplier || 0) * 0.1;
+                    let critBonus = Math.floor(earned * critMultiplier);
+                    userData.coins += critBonus;
+                    createTapEffect(event, `💥 КРИТ! +${critBonus}`);
+                }
                 
                 if (Math.random() < 0.1) {
                     const bonus = Math.floor(Math.random() * 5 + 1) * userData.per_tap;
@@ -1226,11 +2424,10 @@
                 
                 checkSkinUnlocks();
                 updateDisplay();
-                // Отложенное сохранение для производительности
-                setTimeout(saveUserData, 100);
+                await saveUserData();
                 
             } else {
-                showNotification('Энергия закончилась!', 'error');
+                showNotification('Энергия закончилась. Подожди немного!', 'error');
             }
         }
 
@@ -1249,7 +2446,967 @@
             }, 1000);
         }
 
-        // Уведомления
+        // Загрузка курсов обмена
+        function loadWithdrawRates() {
+            const ratesContainer = document.getElementById('withdraw-rates');
+            let ratesHTML = '<h3>💰 Курсы обмена</h3>';
+            
+            for (const [method, info] of Object.entries(EXCHANGE_RATES)) {
+                const minCoins = info.min_coins;
+                ratesHTML += `
+                    <div class="rate-card">
+                        <div class="rate-header">
+                            <span class="rate-emoji">${info.emoji}</span>
+                            <span class="rate-currency">${info.currency}</span>
+                        </div>
+                        <div class="rate-details">
+                            <div><strong>${info.rate.toLocaleString()} монет = 1 ${info.currency.split().pop()}</strong></div>
+                            <div>Минимум: ${minCoins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            ratesContainer.innerHTML = ratesHTML;
+        }
+
+        // Обновление минимальной суммы вывода
+        function updateMinAmount(type) {
+            let method, minInfo;
+            
+            if (type === 'crypto') {
+                method = document.getElementById('crypto-method').value;
+                const info = EXCHANGE_RATES[method];
+                minInfo = `Минимальная сумма вывода: ${info.min_coins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})`;
+                document.getElementById('crypto-min-amount').innerHTML = minInfo;
+                document.getElementById('crypto-amount').min = info.min_coins;
+                document.getElementById('crypto-amount').placeholder = `Минимум ${info.min_coins.toLocaleString()}`;
+            } else if (type === 'ewallet') {
+                method = document.getElementById('ewallet-method').value;
+                const info = EXCHANGE_RATES[method];
+                minInfo = `Минимальная сумма вывода: ${info.min_coins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})`;
+                document.getElementById('ewallet-min-amount').innerHTML = minInfo;
+                document.getElementById('ewallet-amount').min = info.min_coins;
+                document.getElementById('ewallet-amount').placeholder = `Минимум ${info.min_coins.toLocaleString()}`;
+            } else if (type === 'game') {
+                method = document.getElementById('game-method').value;
+                const info = EXCHANGE_RATES[method];
+                minInfo = `Минимальная сумма вывода: ${info.min_coins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})`;
+                document.getElementById('game-min-amount').innerHTML = minInfo;
+                document.getElementById('game-amount').min = info.min_coins;
+                document.getElementById('game-amount').placeholder = `Минимум ${info.min_coins.toLocaleString()}`;
+            }
+            
+            updateExchangeDisplay();
+        }
+
+        // Обновление отображения курса
+        function updateExchangeDisplay() {
+            // Криптовалюты
+            const cryptoMethod = document.getElementById('crypto-method').value;
+            const cryptoAmount = parseInt(document.getElementById('crypto-amount').value) || 0;
+            const cryptoInfo = EXCHANGE_RATES[cryptoMethod];
+            const cryptoResult = (cryptoAmount / cryptoInfo.rate).toFixed(2);
+            document.getElementById('crypto-exchange').textContent = 
+                `${cryptoAmount.toLocaleString()} монет = ${cryptoResult} ${cryptoInfo.currency.split().pop()}`;
+            
+            // Электронные кошельки
+            const ewalletMethod = document.getElementById('ewallet-method').value;
+            const ewalletAmount = parseInt(document.getElementById('ewallet-amount').value) || 0;
+            const ewalletInfo = EXCHANGE_RATES[ewalletMethod];
+            const ewalletResult = (ewalletAmount / ewalletInfo.rate).toFixed(2);
+            document.getElementById('ewallet-exchange').textContent = 
+                `${ewalletAmount.toLocaleString()} монет = ${ewalletResult} ${ewalletInfo.currency.split().pop()}`;
+            
+            // Игровые валюты
+            const gameMethod = document.getElementById('game-method').value;
+            const gameAmount = parseInt(document.getElementById('game-amount').value) || 0;
+            const gameInfo = EXCHANGE_RATES[gameMethod];
+            const gameResult = (gameAmount / gameInfo.rate).toFixed(2);
+            document.getElementById('game-exchange').textContent = 
+                `${gameAmount.toLocaleString()} монет = ${gameResult} ${gameInfo.currency.split().pop()}`;
+        }
+
+        // Улучшенная система вывода
+        async function submitWithdraw(type) {
+            let amount, method, details, amountInput, addressInput;
+            
+            if (type === 'crypto') {
+                amountInput = document.getElementById('crypto-amount');
+                method = document.getElementById('crypto-method').value;
+                addressInput = document.getElementById('crypto-address');
+            } else if (type === 'ewallet') {
+                amountInput = document.getElementById('ewallet-amount');
+                method = document.getElementById('ewallet-method').value;
+                addressInput = document.getElementById('ewallet-account');
+            } else if (type === 'game') {
+                amountInput = document.getElementById('game-amount');
+                method = document.getElementById('game-method').value;
+                addressInput = document.getElementById('game-username');
+            }
+            
+            amount = parseInt(amountInput.value);
+            details = addressInput.value;
+            
+            const rateInfo = EXCHANGE_RATES[method];
+            
+            if (!amount || amount > userData.coins) {
+                showNotification('Недостаточно монет для вывода', 'error');
+                return;
+            }
+            
+            if (amount < rateInfo.min_coins) {
+                showNotification(`Минимальная сумма вывода: ${rateInfo.min_coins.toLocaleString()} монет (${rateInfo.min_amount} ${rateInfo.currency.split().pop()})`, 'error');
+                return;
+            }
+            
+            if (!details) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+            
+            // Показываем анимацию обработки
+            showWithdrawProcessing(amount, method, details);
+            
+            // Имитация успешного вывода
+            setTimeout(() => {
+                const payout = (amount / rateInfo.rate).toFixed(2);
+                showWithdrawSuccess(amount, method, details, payout, rateInfo.currency);
+                
+                // Списываем монеты
+                userData.coins -= amount;
+                updateDisplay();
+                saveUserData();
+                
+                setTimeout(() => {
+                    hideWithdraw();
+                }, 2000);
+            }, 3000);
+        }
+
+        function showWithdrawProcessing(amount, method, details) {
+            const info = EXCHANGE_RATES[method];
+            document.getElementById('popup-title').textContent = '⏳ Обработка вывода';
+            document.getElementById('popup-message').innerHTML = `
+                <div class="withdraw-processing">
+                    <div class="spinner"></div>
+                    <div style="margin-top: 20px;">
+                        <div>💎 Сумма: ${amount.toLocaleString()} монет</div>
+                        <div>💰 Метод: ${info.emoji} ${info.currency}</div>
+                        <div>📧 Реквизиты: ${details.substring(0, 20)}...</div>
+                        <div>⏰ Обрабатываем ваш запрос...</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('bonus-popup').className = 'bonus-popup';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+
+        function showWithdrawSuccess(amount, method, details, payout, currency) {
+            const info = EXCHANGE_RATES[method];
+            document.getElementById('popup-title').textContent = '✅ Вывод успешен!';
+            document.getElementById('popup-message').innerHTML = `
+                <div class="withdraw-success">
+                    <div class="success-animation">🎉</div>
+                    <div style="margin-top: 20px;">
+                        <div>💎 Сумма: ${amount.toLocaleString()} монет</div>
+                        <div>💰 К выплате: ${payout} ${currency.split().pop()}</div>
+                        <div>📧 Реквизиты: ${details}</div>
+                        <div>✅ Статус: Успешно обработан</div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(76,175,80,0.2); border-radius: 10px;">
+                        Средства будут зачислены в течение 24 часов<br>
+                        Номер транзакции: TX-${Date.now().toString().slice(-8)}
+                    </div>
+                </div>
+            `;
+            document.getElementById('bonus-popup').className = 'bonus-popup level-up';
+        }
+
+        // Улучшенная система лидерборда с синхронизацией
+        async function showLeaderboard() {
+            const menu = document.getElementById('leaderboard-menu');
+            
+            // Загружаем всех пользователей и кланы
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = data.record.users || {};
+                    const clans = data.record.clans || {};
+                    
+                    // Синхронизируем данные
+                    allUsers = users;
+                    allClans = clans;
+                    
+                    // Топ по монетам
+                    const topByCoins = Object.entries(users)
+                        .map(([id, user]) => ({
+                            id,
+                            username: user.username || `Игрок ${id.slice(0, 6)}`,
+                            first_name: user.first_name || "",
+                            last_name: user.last_name || "",
+                            coins: user.coins || 0,
+                            level: user.level || 1,
+                            total_taps: user.total_taps || 0,
+                            isCurrent: id === userId
+                        }))
+                        .sort((a, b) => b.coins - a.coins)
+                        .slice(0, 100);
+                    
+                    // Топ по тапам
+                    const topByTaps = Object.entries(users)
+                        .map(([id, user]) => ({
+                            id,
+                            username: user.username || `Игрок ${id.slice(0, 6)}`,
+                            first_name: user.first_name || "",
+                            last_name: user.last_name || "",
+                            total_taps: user.total_taps || 0,
+                            coins: user.coins || 0,
+                            level: user.level || 1,
+                            isCurrent: id === userId
+                        }))
+                        .sort((a, b) => b.total_taps - a.total_taps)
+                        .slice(0, 100);
+                    
+                    // Топ кланов по тапам (исключаем фейковые)
+                    const topClansByTaps = Object.entries(clans)
+                        .filter(([id, clan]) => !clan.is_fake)
+                        .map(([id, clan]) => {
+                            // Вычисляем общее количество тапов клана
+                            let totalTaps = clan.total_taps || 0;
+                            if (!totalTaps && clan.members) {
+                                totalTaps = clan.members.reduce((sum, memberId) => {
+                                    const member = users[memberId];
+                                    return sum + (member ? (member.total_taps || 0) : 0);
+                                }, 0);
+                            }
+                            
+                            return {
+                                id,
+                                name: clan.name || `Клан ${id.slice(0, 6)}`,
+                                total_taps: totalTaps,
+                                members: clan.members || [],
+                                level: clan.level || 1,
+                                description: clan.description || "",
+                                isCurrent: id === userData.clan_id
+                            };
+                        })
+                        .sort((a, b) => b.total_taps - a.total_taps)
+                        .slice(0, 100);
+                    
+                    // Обновляем таблицы
+                    updateLeaderboardList('players', topByCoins, 'coins');
+                    updateLeaderboardList('taps', topByTaps, 'total_taps');
+                    updateClanLeaderboardList(topClansByTaps);
+                    
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки лидерборда:', error);
+            }
+            
+            menu.style.display = 'block';
+        }
+
+        function updateLeaderboardList(tabId, users, field) {
+            const list = document.getElementById(`${tabId === 'players' ? 'leaderboard' : tabId === 'taps' ? 'taps' : 'clans'}-list`);
+            list.innerHTML = '';
+            
+            users.forEach((user, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                if (user.isCurrent) {
+                    item.style.background = 'rgba(255,215,0,0.2)';
+                    item.style.border = '1px solid rgba(255,215,0,0.5)';
+                }
+                
+                // Используем реальное имя пользователя
+                let displayName = user.username;
+                if (user.first_name) {
+                    displayName = user.first_name;
+                    if (user.last_name) {
+                        displayName += ' ' + user.last_name;
+                    }
+                }
+                
+                // Генерируем аватар
+                const avatarColor = `hsl(${parseInt(user.id) % 360}, 70%, 60%)`;
+                
+                let displayValue;
+                if (field === 'coins') {
+                    displayValue = `${user.coins.toLocaleString()} 💎`;
+                } else if (field === 'total_taps') {
+                    displayValue = `${user.total_taps.toLocaleString()} 👊`;
+                } else {
+                    displayValue = user[field];
+                }
+                
+                item.innerHTML = `
+                    <div class="leaderboard-rank ${index < 3 ? 'top-' + (index + 1) : ''}">
+                        ${index < 3 ? ['🥇', '🥈', '🥉'][index] : index + 1}
+                    </div>
+                    <div class="top-user">
+                        <div class="user-avatar" style="background: ${avatarColor}">
+                            ${displayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="leaderboard-user">
+                            <div>${displayName}</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Ур. ${user.level}</div>
+                        </div>
+                    </div>
+                    <div class="leaderboard-score">${displayValue}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updateClanLeaderboardList(clans) {
+            const list = document.getElementById('clans-leaderboard');
+            list.innerHTML = '';
+            
+            clans.forEach((clan, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                if (clan.isCurrent) {
+                    item.style.background = 'rgba(255,215,0,0.2)';
+                    item.style.border = '1px solid rgba(255,215,0,0.5)';
+                }
+                
+                const membersCount = clan.members.length || 1;
+                
+                item.innerHTML = `
+                    <div class="leaderboard-rank ${index < 3 ? 'top-' + (index + 1) : ''}">
+                        ${index < 3 ? ['🥇', '🥈', '🥉'][index] : index + 1}
+                    </div>
+                    <div class="top-user">
+                        <div class="user-avatar">
+                            ${clan.isCurrent ? '👑' : '👥'}
+                        </div>
+                        <div class="leaderboard-user">
+                            <div>${clan.name} ${clan.isCurrent ? '(Ваш клан)' : ''}</div>
+                            <div style="font-size: 12px; opacity: 0.8;">👥 ${membersCount} игроков | Ур. ${clan.level || 1}</div>
+                            ${clan.description ? `<div style="font-size: 11px; opacity: 0.7;">${clan.description.substring(0, 30)}...</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="leaderboard-score">${clan.total_taps.toLocaleString()} 👊</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function hideLeaderboard() {
+            document.getElementById('leaderboard-menu').style.display = 'none';
+        }
+
+        function switchLeaderboardTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tabEl => {
+                tabEl.classList.remove('active');
+            });
+            
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Функции для меню скинов
+        function showSkins() {
+            const menu = document.getElementById('skins-menu');
+            const grid = document.getElementById('skins-grid');
+            grid.innerHTML = '';
+            
+            const currentSkin = getCurrentSkin();
+            
+            PUG_SKINS.forEach(skin => {
+                const isUnlocked = userData.total_taps >= skin.taps_required;
+                const isCurrent = skin.id === userData.pug_skin;
+                const isNext = skin.id === userData.pug_skin + 1;
+                
+                const skinCard = document.createElement('div');
+                skinCard.className = 'skin-card';
+                if (!isUnlocked) skinCard.classList.add('locked');
+                if (isCurrent) skinCard.classList.add('current');
+                
+                const bonusText = skin.bonus.multiplier > 1 ? `<div style="color: var(--accent); font-size: 10px; margin-top: 5px;">+${Math.round((skin.bonus.multiplier - 1) * 100)}% доход</div>` : '';
+                
+                skinCard.innerHTML = `
+                    <div class="skin-emoji">${skin.emoji}</div>
+                    <div class="skin-name">${skin.name}</div>
+                    <div class="skin-requirement">${skin.taps_required.toLocaleString()} тапов</div>
+                    ${bonusText}
+                    ${isCurrent ? '<div style="color: var(--accent); font-size: 10px;">Текущий</div>' : ''}
+                    ${isNext ? '<div style="color: #00FF00; font-size: 10px;">Следующий</div>' : ''}
+                `;
+                
+                if (isUnlocked && !isCurrent) {
+                    skinCard.onclick = () => selectSkin(skin.id);
+                }
+                
+                grid.appendChild(skinCard);
+            });
+            
+            menu.style.display = 'block';
+        }
+
+        function hideSkins() {
+            document.getElementById('skins-menu').style.display = 'none';
+        }
+
+        async function selectSkin(skinId) {
+            const oldSkin = getCurrentSkin();
+            userData.pug_skin = skinId;
+            const newSkin = getCurrentSkin();
+            
+            // Обновляем бонусы
+            if (oldSkin.bonus.tapBonus > 0) {
+                userData.per_tap -= oldSkin.bonus.tapBonus;
+            }
+            if (oldSkin.bonus.energyBonus > 0) {
+                userData.max_energy -= oldSkin.bonus.energyBonus;
+            }
+            
+            if (newSkin.bonus.tapBonus > 0) {
+                userData.per_tap += newSkin.bonus.tapBonus;
+            }
+            if (newSkin.bonus.energyBonus > 0) {
+                userData.max_energy += newSkin.bonus.energyBonus;
+            }
+            
+            await saveUserData();
+            updateDisplay();
+            applySkinTheme();
+            showSkins();
+            showNotification(`Скин "${newSkin.name}" успешно применен! Бонус: +${Math.round((newSkin.bonus.multiplier - 1) * 100)}% к доходу`, 'success');
+        }
+
+        // Функции для меню настроек
+        function showSettings() {
+            const menu = document.getElementById('settings-menu');
+            
+            // Обновляем переключатели текущими настройками
+            document.getElementById('sound-toggle').checked = userData.settings.sound;
+            document.getElementById('vibration-toggle').checked = userData.settings.vibration;
+            document.getElementById('dark-mode-toggle').checked = userData.settings.darkMode;
+            document.getElementById('notifications-toggle').checked = userData.settings.notifications;
+            document.getElementById('interface-style').value = userData.settings.interfaceStyle || 'default';
+            
+            menu.style.display = 'block';
+        }
+
+        function hideSettings() {
+            document.getElementById('settings-menu').style.display = 'none';
+        }
+
+        // Функции для меню кланов
+        function showClans() {
+            const menu = document.getElementById('clans-menu');
+            
+            // Загружаем данные кланов
+            loadClansData();
+            
+            menu.style.display = 'block';
+        }
+
+        function hideClans() {
+            document.getElementById('clans-menu').style.display = 'none';
+        }
+
+        async function loadClansData() {
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = data.record.users || {};
+                    const clans = data.record.clans || {};
+                    
+                    // Обновляем список кланов
+                    updateClansList(clans, users);
+                    
+                    // Обновляем информацию о моем клане
+                    updateMyClanInfo(clans);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки кланов:', error);
+            }
+        }
+
+        function updateClansList(clans, users) {
+            const clansList = document.getElementById('clans-list');
+            clansList.innerHTML = '';
+            
+            // Показываем только настоящие кланы (не фейковые)
+            const realClans = Object.entries(clans).filter(([id, clan]) => !clan.is_fake);
+            
+            if (realClans.length === 0) {
+                clansList.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.7;">Пока нет созданных кланов. Будьте первым!</div>';
+                return;
+            }
+            
+            // Сортируем по количеству тапов
+            const sortedClans = realClans.sort((a, b) => {
+                const totalTapsA = calculateClanTaps(a[1], users);
+                const totalTapsB = calculateClanTaps(b[1], users);
+                return totalTapsB - totalTapsA;
+            });
+            
+            sortedClans.forEach(([id, clan]) => {
+                const membersCount = clan.members ? clan.members.length : 0;
+                const totalTaps = calculateClanTaps(clan, users);
+                const isMyClan = id === userData.clan_id;
+                
+                const clanCard = document.createElement('div');
+                clanCard.className = 'clan-card';
+                if (isMyClan) {
+                    clanCard.style.border = '2px solid var(--accent)';
+                    clanCard.style.background = 'rgba(255,215,0,0.1)';
+                }
+                
+                clanCard.innerHTML = `
+                    <div class="clan-header">
+                        <div>
+                            <strong>${clan.name} ${isMyClan ? '👑' : ''}</strong>
+                            <div style="font-size: 12px; opacity: 0.8;">👥 ${membersCount}/50 участников | Ур. ${clan.level || 1}</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; background: rgba(255,215,0,0.2); padding: 3px 8px; border-radius: 10px;">
+                                👊 ${totalTaps.toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; margin-bottom: 10px;">
+                        ${clan.description || 'Нет описания'}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 12px; opacity: 0.8;">
+                            Лидер: ${getUserName(clan.creator_id, users)}
+                        </div>
+                        ${!isMyClan && !userData.clan_id ? `
+                            <button class="btn btn-primary" style="padding: 5px 15px; font-size: 12px;" onclick="joinClan('${id}')">
+                                Вступить
+                            </button>
+                        ` : ''}
+                        ${isMyClan ? `
+                            <button class="btn btn-accent" style="padding: 5px 15px; font-size: 12px;" onclick="showMyClanInfo()">
+                                Мой клан
+                            </button>
+                        ` : ''}
+                    </div>
+                    ${clan.channel_link ? `
+                        <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                            📢 Канал: <a href="${clan.channel_link}" target="_blank" style="color: var(--accent);">${clan.channel_link}</a>
+                        </div>
+                    ` : ''}
+                `;
+                
+                clansList.appendChild(clanCard);
+            });
+        }
+
+        function calculateClanTaps(clan, users) {
+            if (clan.total_taps) return clan.total_taps;
+            
+            if (!clan.members || clan.members.length === 0) return 0;
+            
+            return clan.members.reduce((sum, memberId) => {
+                const member = users[memberId];
+                return sum + (member ? (member.total_taps || 0) : 0);
+            }, 0);
+        }
+
+        function getUserName(userId, users) {
+            const user = users[userId];
+            if (!user) return `Игрок ${userId.slice(0, 6)}`;
+            
+            if (user.first_name) {
+                return user.first_name + (user.last_name ? ` ${user.last_name}` : '');
+            }
+            
+            return user.username || `Игрок ${userId.slice(0, 6)}`;
+        }
+
+        function updateMyClanInfo(clans) {
+            const myClanInfo = document.getElementById('my-clan-info');
+            
+            if (userData.clan_id && clans[userData.clan_id]) {
+                const clan = clans[userData.clan_id];
+                const membersCount = clan.members ? clan.members.length : 0;
+                
+                myClanInfo.innerHTML = `
+                    <div style="padding: 20px;">
+                        <h3 style="margin-bottom: 15px; color: var(--accent);">${clan.name} 👑</h3>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Описание:</strong>
+                            <div style="margin-top: 5px;">${clan.description || 'Нет описания'}</div>
+                        </div>
+                        
+                        <div class="referral-stats" style="margin-bottom: 15px;">
+                            <div class="stat-card">
+                                <div>👥 Участников</div>
+                                <div class="stat-value">${membersCount}</div>
+                            </div>
+                            <div class="stat-card">
+                                <div>🏆 Уровень</div>
+                                <div class="stat-value">${clan.level || 1}</div>
+                            </div>
+                        </div>
+                        
+                        ${clan.channel_link ? `
+                            <div style="margin-bottom: 15px;">
+                                <strong>📢 Канал клана:</strong>
+                                <div style="margin-top: 5px;">
+                                    <a href="${clan.channel_link}" target="_blank" style="color: var(--accent);">${clan.channel_link}</a>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <button class="btn btn-danger" style="width: 100%;" onclick="leaveClan()">
+                            <i class="fas fa-sign-out-alt"></i> Покинуть клан
+                        </button>
+                    </div>
+                `;
+            } else {
+                myClanInfo.innerHTML = `
+                    <div style="text-align: center; padding: 20px; opacity: 0.7;">
+                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <div>Вы не состоите в клане</div>
+                    </div>
+                `;
+            }
+        }
+
+        function showMyClanInfo() {
+            switchClanTab('my');
+        }
+
+        async function joinClan(clanId) {
+            if (userData.clan_id) {
+                showNotification('Вы уже состоите в клане!', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const clans = data.record.clans || {};
+                    const users = data.record.users || {};
+                    
+                    if (clans[clanId]) {
+                        const clan = clans[clanId];
+                        
+                        // Добавляем пользователя в клан
+                        if (!clan.members) clan.members = [];
+                        if (!clan.members.includes(userId)) {
+                            clan.members.push(userId);
+                        }
+                        
+                        // Обновляем данные пользователя
+                        userData.clan_id = clanId;
+                        userData.clan_name = clan.name;
+                        
+                        users[userId] = userData;
+                        
+                        // Сохраняем изменения
+                        const updateResponse = await fetch(JSONBIN_UPDATE_URL, {
+                            method: 'PUT',
+                            headers: {
+                                "X-Master-Key": JSONBIN_API_KEY,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                ...data.record,
+                                clans: clans,
+                                users: users
+                            })
+                        });
+                        
+                        if (updateResponse.ok) {
+                            showNotification(`Вы успешно вступили в клан "${clan.name}"!`, 'success');
+                            updateDisplay();
+                            loadClansData();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка вступления в клан:', error);
+                showNotification('Ошибка вступления в клан', 'error');
+            }
+        }
+
+        async function leaveClan() {
+            if (!userData.clan_id) {
+                showNotification('Вы не состоите в клане!', 'error');
+                return;
+            }
+            
+            if (confirm('Вы уверены, что хотите покинуть клан?')) {
+                try {
+                    const response = await fetch(JSONBIN_URL, {
+                        headers: {
+                            "X-Master-Key": JSONBIN_API_KEY
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const clans = data.record.clans || {};
+                        const users = data.record.users || {};
+                        
+                        if (clans[userData.clan_id]) {
+                            const clan = clans[userData.clan_id];
+                            
+                            // Удаляем пользователя из клана
+                            if (clan.members) {
+                                clan.members = clan.members.filter(memberId => memberId !== userId);
+                            }
+                            
+                            // Если пользователь был создателем клана
+                            if (clan.creator_id === userId) {
+                                if (clan.members.length > 0) {
+                                    // Назначаем нового создателя
+                                    clan.creator_id = clan.members[0];
+                                } else {
+                                    // Удаляем клан если он пустой
+                                    delete clans[userData.clan_id];
+                                }
+                            }
+                            
+                            // Обновляем данные пользователя
+                            userData.clan_id = null;
+                            userData.clan_name = null;
+                            
+                            users[userId] = userData;
+                            
+                            // Сохраняем изменения
+                            const updateResponse = await fetch(JSONBIN_UPDATE_URL, {
+                                method: 'PUT',
+                                headers: {
+                                    "X-Master-Key": JSONBIN_API_KEY,
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    ...data.record,
+                                    clans: clans,
+                                    users: users
+                                })
+                            });
+                            
+                            if (updateResponse.ok) {
+                                showNotification('Вы покинули клан', 'success');
+                                updateDisplay();
+                                loadClansData();
+                                switchClanTab('list');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка выхода из клана:', error);
+                    showNotification('Ошибка выхода из клана', 'error');
+                }
+            }
+        }
+
+        async function createClan() {
+            const name = document.getElementById('clan-name').value;
+            const description = document.getElementById('clan-description').value;
+            const channel = document.getElementById('clan-channel').value;
+            
+            if (!name || !description || !channel) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+            
+            if (name.length > 20) {
+                showNotification('Название клана должно быть не более 20 символов', 'error');
+                return;
+            }
+            
+            if (!channel.startsWith('https://t.me/')) {
+                showNotification('Неверная ссылка на Telegram канал', 'error');
+                return;
+            }
+            
+            if (userData.coins < 1000) {
+                showNotification('Недостаточно монет для создания клана', 'error');
+                return;
+            }
+            
+            if (userData.clan_id) {
+                showNotification('Вы уже состоите в клане!', 'error');
+                return;
+            }
+            
+            // Создаем клан
+            try {
+                const clanData = {
+                    name,
+                    description,
+                    channel_link: channel,
+                    creator_id: userId,
+                    members: [userId],
+                    total_taps: userData.total_taps,
+                    level: 1,
+                    created_at: new Date().toISOString()
+                };
+                
+                // Сохраняем в базе
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const clans = data.record.clans || {};
+                    const users = data.record.users || {};
+                    const clanId = 'clan_' + Date.now();
+                    
+                    clans[clanId] = clanData;
+                    
+                    // Обновляем пользователя
+                    userData.clan_id = clanId;
+                    userData.clan_name = name;
+                    userData.coins -= 1000;
+                    
+                    users[userId] = userData;
+                    
+                    // Сохраняем изменения
+                    const updateResponse = await fetch(JSONBIN_UPDATE_URL, {
+                        method: 'PUT',
+                        headers: {
+                            "X-Master-Key": JSONBIN_API_KEY,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            ...data.record,
+                            clans: clans,
+                            users: users
+                        })
+                    });
+                    
+                    if (updateResponse.ok) {
+                        showNotification('Клан успешно создан!', 'success');
+                        updateDisplay();
+                        hideClans();
+                        setTimeout(() => {
+                            showClans();
+                            switchClanTab('my');
+                        }, 500);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка создания клана:', error);
+                showNotification('Ошибка создания клана', 'error');
+            }
+        }
+
+        function switchClanTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tabEl => {
+                tabEl.classList.remove('active');
+            });
+            
+            document.getElementById(`clan-${tab}-tab`).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'list') {
+                loadClansData();
+            } else if (tab === 'my') {
+                updateMyClanInfo(allClans);
+            }
+        }
+
+        // Улучшенная реферальная система
+        function showReferrals() {
+            // Правильная реферальная ссылка
+            const refLink = `https://t.me/MelryBot?start=ref_${userId}`;
+            document.getElementById('referral-code').textContent = refLink;
+            
+            // Загружаем актуальные данные о рефералах
+            updateReferralsCount();
+            
+            document.getElementById('referrals-menu').style.display = 'block';
+        }
+
+        function hideReferrals() {
+            document.getElementById('referrals-menu').style.display = 'none';
+        }
+
+        async function updateReferralsCount() {
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = data.record.users || {};
+                    
+                    // Считаем количество рефералов
+                    const referrals = Object.values(users).filter(u => u.referrer_id === userId).length;
+                    userData.referrals_count = referrals;
+                    
+                    updateDisplay();
+                    await saveUserData();
+                }
+            } catch (error) {
+                console.error('Ошибка обновления рефералов:', error);
+            }
+        }
+
+        function copyReferralCode() {
+            const refLink = `https://t.me/MelryBot?start=ref_${userId}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(refLink).then(() => {
+                    showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = refLink;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
+            }
+        }
+
+        // Вспомогательные функции
+        function showLevelUp() {
+            document.getElementById('popup-title').textContent = '🎉 УРОВЕНЬ ПОВЫШЕН!';
+            document.getElementById('popup-message').textContent = `Поздравляем! Вы достигли уровня ${userData.level}`;
+            document.getElementById('bonus-popup').className = 'bonus-popup level-up';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('bonus-popup').style.display = 'none';
+        }
+
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             const text = document.getElementById('notification-text');
@@ -1263,19 +3420,8 @@
             }, 3000);
         }
 
-        // Показать уровень
-        function showLevelUp() {
-            document.getElementById('popup-title').textContent = '🎉 УРОВЕНЬ ПОВЫШЕН!';
-            document.getElementById('popup-message').textContent = `Поздравляем! Вы достигли уровня ${userData.level}`;
-            document.getElementById('bonus-popup').style.display = 'block';
-        }
-
-        function closePopup() {
-            document.getElementById('bonus-popup').style.display = 'none';
-        }
-
-        // Основные функции меню
-        function showUpgrades() {
+        // Функции прокачки
+        async function showUpgrades() {
             const menu = document.getElementById('upgrades-menu');
             const list = document.getElementById('upgrades-list');
             list.innerHTML = '';
@@ -1343,6 +3489,8 @@
             showNotification(`${upgrade.name} улучшено до уровня ${currentLevel + 1}`, 'success');
             updateDisplay();
             await saveUserData();
+            
+            setTimeout(showUpgrades, 1000);
         }
 
         function hideUpgrades() {
@@ -1351,6 +3499,8 @@
 
         function showWithdraw() {
             updateMinAmount('crypto');
+            updateMinAmount('ewallet');
+            updateMinAmount('game');
             document.getElementById('withdraw-menu').style.display = 'block';
         }
 
@@ -1358,215 +3508,6 @@
             document.getElementById('withdraw-menu').style.display = 'none';
         }
 
-        function updateMinAmount(type) {
-            const method = document.getElementById(`${type}-method`).value;
-            const info = EXCHANGE_RATES[method];
-            if (info) {
-                document.getElementById(`${type}-min-amount`).innerHTML = 
-                    `Минимум: ${info.min_coins.toLocaleString()} монет`;
-                document.getElementById(`${type}-amount`).min = info.min_coins;
-            }
-            updateExchangeDisplay();
-        }
-
-        function updateExchangeDisplay() {
-            // Простое обновление для одного метода
-            const method = document.getElementById('crypto-method').value;
-            const amount = parseInt(document.getElementById('crypto-amount').value) || 0;
-            const info = EXCHANGE_RATES[method];
-            if (info) {
-                const result = (amount / info.rate).toFixed(2);
-                document.getElementById('crypto-exchange').textContent = 
-                    `${amount.toLocaleString()} монет = ${result} ${info.currency}`;
-            }
-        }
-
-        async function submitWithdraw(type) {
-            const amountInput = document.getElementById(`${type}-amount`);
-            const method = document.getElementById(`${type}-method`).value;
-            const addressInput = document.getElementById(`${type}-${type === 'crypto' ? 'address' : type === 'ewallet' ? 'account' : 'username'}`);
-            
-            const amount = parseInt(amountInput.value);
-            const details = addressInput.value;
-            const rateInfo = EXCHANGE_RATES[method];
-            
-            if (!amount || amount > userData.coins) {
-                showNotification('Недостаточно монет для вывода', 'error');
-                return;
-            }
-            
-            if (amount < rateInfo.min_coins) {
-                showNotification(`Минимальная сумма: ${rateInfo.min_coins.toLocaleString()} монет`, 'error');
-                return;
-            }
-            
-            if (!details) {
-                showNotification('Заполните все поля', 'error');
-                return;
-            }
-            
-            showNotification('Вывод обрабатывается...', 'success');
-            userData.coins -= amount;
-            updateDisplay();
-            await saveUserData();
-            
-            setTimeout(() => {
-                showNotification('Вывод успешно отправлен!', 'success');
-                hideWithdraw();
-            }, 2000);
-        }
-
-        function showSkins() {
-            const menu = document.getElementById('skins-menu');
-            const grid = document.getElementById('skins-grid');
-            grid.innerHTML = '';
-            
-            const currentSkin = getCurrentSkin();
-            
-            PUG_SKINS.forEach(skin => {
-                const isUnlocked = userData.total_taps >= skin.taps_required;
-                const isCurrent = skin.id === userData.pug_skin;
-                
-                const skinCard = document.createElement('div');
-                skinCard.className = 'skin-card';
-                if (!isUnlocked) skinCard.classList.add('locked');
-                if (isCurrent) skinCard.classList.add('current');
-                
-                skinCard.innerHTML = `
-                    <div class="skin-emoji">${skin.emoji}</div>
-                    <div class="skin-name">${skin.name}</div>
-                    <div class="skin-requirement">${skin.taps_required.toLocaleString()} тапов</div>
-                    ${isCurrent ? '<div style="color: var(--accent); font-size: 10px;">Текущий</div>' : ''}
-                `;
-                
-                if (isUnlocked && !isCurrent) {
-                    skinCard.onclick = () => selectSkin(skin.id);
-                }
-                
-                grid.appendChild(skinCard);
-            });
-            
-            menu.style.display = 'block';
-        }
-
-        function hideSkins() {
-            document.getElementById('skins-menu').style.display = 'none';
-        }
-
-        async function selectSkin(skinId) {
-            userData.pug_skin = skinId;
-            await saveUserData();
-            updateDisplay();
-            showSkins();
-            showNotification('Скин успешно применен!', 'success');
-        }
-
-        function showLeaderboard() {
-            document.getElementById('leaderboard-menu').style.display = 'block';
-        }
-
-        function hideLeaderboard() {
-            document.getElementById('leaderboard-menu').style.display = 'none';
-        }
-
-        function showClans() {
-            document.getElementById('clans-menu').style.display = 'block';
-        }
-
-        function hideClans() {
-            document.getElementById('clans-menu').style.display = 'none';
-        }
-
-        function showReferrals() {
-            document.getElementById('referrals-menu').style.display = 'block';
-        }
-
-        function hideReferrals() {
-            document.getElementById('referrals-menu').style.display = 'none';
-        }
-
-        function showSettings() {
-            const menu = document.getElementById('settings-menu');
-            menu.style.display = 'block';
-        }
-
-        function hideSettings() {
-            document.getElementById('settings-menu').style.display = 'none';
-        }
-
-        function copyReferralCode() {
-            const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(refLink).then(() => {
-                    showNotification('Ссылка скопирована!', 'success');
-                });
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = refLink;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showNotification('Ссылка скопирована!', 'success');
-            }
-        }
-
-        // Инициализация
-        document.getElementById('tap-area').addEventListener('click', handleTap);
-        
-        document.getElementById('sound-toggle').addEventListener('change', async function() {
-            userData.settings.sound = this.checked;
-            await saveUserData();
-        });
-        
-        document.getElementById('vibration-toggle').addEventListener('change', async function() {
-            userData.settings.vibration = this.checked;
-            await saveUserData();
-        });
-        
-        document.getElementById('dark-mode-toggle').addEventListener('change', async function() {
-            userData.settings.darkMode = this.checked;
-            applySettings();
-            await saveUserData();
-        });
-        
-        // Восстановление энергии каждую секунду
-        setInterval(() => {
-            const oldEnergy = userData.energy;
-            restoreEnergyBasedOnTime();
-            if (userData.energy !== oldEnergy) {
-                updateDisplay();
-            }
-        }, 1000);
-        
-        // Авто-таппер
-        setInterval(async () => {
-            const autoTapperLevel = userData.upgrades.auto_tapper || 0;
-            if (autoTapperLevel > 0 && userData.energy > 0) {
-                const taps = Math.min(autoTapperLevel, userData.energy);
-                
-                for (let i = 0; i < taps; i++) {
-                    userData.coins += userData.per_tap;
-                    userData.energy--;
-                    userData.total_taps++;
-                }
-                
-                userData.last_energy_update = new Date().toISOString();
-                updateDisplay();
-                saveUserData();
-            }
-        }, 10000);
-        
-        // Авто-сохранение каждые 30 секунд
-        setInterval(async () => {
-            await saveUserData();
-        }, 30000);
-        
-        // Быстрая загрузка
-        loadUserData();
-        
-        // Простые функции для табов
         function switchWithdrawTab(tab) {
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -1578,33 +3519,138 @@
             
             document.getElementById(`${tab}-tab`).classList.add('active');
             event.target.classList.add('active');
+            
+            if (tab === 'crypto') updateMinAmount('crypto');
+            else if (tab === 'ewallet') updateMinAmount('ewallet');
+            else if (tab === 'game') updateMinAmount('game');
+        }
+
+        // Экспорт данных
+        function exportData() {
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `pug-empire-data-${userId}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Данные успешно экспортированы!', 'success');
+        }
+
+        // Сброс прогресса
+        function resetProgress() {
+            if (confirm('Вы уверены, что хотите сбросить весь прогресс? Это действие нельзя отменить!')) {
+                userData = {
+                    coins: 0,
+                    per_tap: 1,
+                    energy: 100,
+                    max_energy: 100,
+                    energy_regen_speed: 10,
+                    level: 1,
+                    total_taps: 0,
+                    upgrades: {},
+                    pug_skin: 1,
+                    referrals_count: 0,
+                    referral_bonus_claimed: false,
+                    referrer_id: null,
+                    clan_id: null,
+                    clan_name: null,
+                    last_tap_time: new Date().toISOString(),
+                    last_energy_update: new Date().toISOString(),
+                    created_at: userData.created_at,
+                    settings: userData.settings
+                };
+                
+                updateDisplay();
+                saveUserData();
+                showNotification('Прогресс успешно сброшен!', 'success');
+            }
+        }
+
+        // Инициализация
+        document.getElementById('tap-area').addEventListener('click', handleTap);
+        
+        // Обработчики для обновления курса в реальном времени
+        document.getElementById('crypto-amount').addEventListener('input', updateExchangeDisplay);
+        document.getElementById('ewallet-amount').addEventListener('input', updateExchangeDisplay);
+        document.getElementById('game-amount').addEventListener('input', updateExchangeDisplay);
+        document.getElementById('crypto-method').addEventListener('change', updateExchangeDisplay);
+        document.getElementById('ewallet-method').addEventListener('change', updateExchangeDisplay);
+        document.getElementById('game-method').addEventListener('change', updateExchangeDisplay);
+        
+        // Обработчики настроек
+        document.getElementById('sound-toggle').addEventListener('change', async function() {
+            userData.settings.sound = this.checked;
+            await saveUserData();
+            showNotification('Настройки сохранены', 'success');
+        });
+        
+        document.getElementById('vibration-toggle').addEventListener('change', async function() {
+            userData.settings.vibration = this.checked;
+            await saveUserData();
+            showNotification('Настройки сохранены', 'success');
+        });
+        
+        document.getElementById('dark-mode-toggle').addEventListener('change', async function() {
+            userData.settings.darkMode = this.checked;
+            applySettings();
+            await saveUserData();
+            showNotification('Настройки сохранены', 'success');
+        });
+        
+        document.getElementById('notifications-toggle').addEventListener('change', async function() {
+            userData.settings.notifications = this.checked;
+            await saveUserData();
+            showNotification('Настройки сохранены', 'success');
+        });
+        
+        // Восстановление энергии
+        setInterval(() => {
+            const oldEnergy = userData.energy;
+            userData = restoreEnergyBasedOnTime(userData);
+            if (userData.energy !== oldEnergy) {
+                updateDisplay();
+            }
+        }, 1000);
+        
+        // Авто-таппер
+        setInterval(async () => {
+            const autoTapperLevel = userData.upgrades.auto_tapper || 0;
+            if (autoTapperLevel > 0) {
+                userData = restoreEnergyBasedOnTime(userData);
+                
+                if (userData.energy > 0) {
+                    const taps = Math.min(autoTapperLevel, userData.energy);
+                    const currentSkin = getCurrentSkin();
+                    
+                    for (let i = 0; i < taps; i++) {
+                        let earned = userData.per_tap;
+                        earned = Math.floor(earned * currentSkin.bonus.multiplier);
+                        userData.coins += earned;
+                        userData.energy--;
+                        userData.total_taps++;
+                    }
+                    
+                    userData.last_energy_update = new Date().toISOString();
+                    
+                    updateDisplay();
+                    await saveUserData();
+                }
+            }
+        }, 10000);
+        
+        // Обработчик от Telegram
+        if (tg) {
+            tg.onEvent('viewportChanged', () => {
+                tg.expand();
+            });
         }
         
-        function switchLeaderboardTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tabEl => {
-                tabEl.classList.remove('active');
-            });
-            
-            document.getElementById(`${tab}-tab`).classList.add('active');
-            event.target.classList.add('active');
-        }
-        
-        function switchClanTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tabEl => {
-                tabEl.classList.remove('active');
-            });
-            
-            document.getElementById(`clan-${tab}-tab`).classList.add('active');
-            event.target.classList.add('active');
-        }
+        // Загрузка данных при старте
+        loadUserData();
     </script>
 </body>
 </html>
