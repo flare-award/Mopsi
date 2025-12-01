@@ -839,6 +839,115 @@
             background: linear-gradient(135deg, #FFD700, #FFA500);
             color: #000;
         }
+
+        /* Новые стили */
+        .withdraw-rates {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .rate-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .rate-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .rate-emoji {
+            font-size: 20px;
+        }
+
+        .rate-currency {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .rate-details {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .withdraw-processing, .withdraw-success {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-animation {
+            font-size: 60px;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .clan-member-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .clan-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .referral-bonuses {
+            background: rgba(255,215,0,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .min-amount-info {
+            background: rgba(255,100,100,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            border-left: 3px solid #FF6B6B;
+        }
+
+        .exchange-rate-display {
+            background: rgba(255,215,0,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .top-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -966,8 +1075,14 @@
                     <div>💰 Баланс</div>
                     <div class="stat-value" id="withdraw-balance">0</div>
                 </div>
-                <div style="opacity: 0.8; font-size: 14px; margin-bottom: 15px;">
-                    Минимальная сумма вывода: 1,000 монет
+                
+                <!-- Курсы обмена -->
+                <div class="withdraw-rates" id="withdraw-rates">
+                    <!-- Курсы будут добавляться через JS -->
+                </div>
+                
+                <div style="opacity: 0.8; font-size: 14px; margin-bottom: 15px; text-align: center;">
+                    💡 Наведите курсор на метод вывода для просмотра курса
                 </div>
             </div>
             
@@ -981,17 +1096,23 @@
                 <div class="withdraw-form">
                     <div class="form-group">
                         <label class="form-label" for="crypto-method">Метод вывода:</label>
-                        <select class="form-select" id="crypto-method">
-                            <option value="ton">TON (The Open Network)</option>
-                            <option value="trx">TRX (TRON)</option>
-                            <option value="bnb">BNB (Binance Coin)</option>
-                            <option value="usdt">USDT (TRC-20)</option>
+                        <select class="form-select" id="crypto-method" onchange="updateMinAmount('crypto')">
+                            <option value="ton">⚡ TON (The Open Network)</option>
+                            <option value="trx">🔗 TRX (TRON)</option>
+                            <option value="bnb">🟡 BNB (Binance Coin)</option>
+                            <option value="usdt">💵 USDT (TRC-20)</option>
                         </select>
+                        <div class="min-amount-info" id="crypto-min-amount">
+                            Минимальная сумма вывода: 200,000 монет (10 TON)
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="crypto-amount">Сумма вывода:</label>
-                        <input type="number" class="form-input" id="crypto-amount" placeholder="Минимум 1000" min="1000">
+                        <label class="form-label" for="crypto-amount">Сумма вывода (монеты):</label>
+                        <input type="number" class="form-input" id="crypto-amount" placeholder="Введите сумму" min="200000">
+                        <div class="exchange-rate-display" id="crypto-exchange">
+                            0 монет = 0.00 TON
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1009,16 +1130,22 @@
                 <div class="withdraw-form">
                     <div class="form-group">
                         <label class="form-label" for="ewallet-method">Метод вывода:</label>
-                        <select class="form-select" id="ewallet-method">
-                            <option value="qiwi">Qiwi</option>
-                            <option value="yoomoney">ЮMoney</option>
-                            <option value="webmoney">WebMoney</option>
+                        <select class="form-select" id="ewallet-method" onchange="updateMinAmount('ewallet')">
+                            <option value="qiwi">🥝 Qiwi</option>
+                            <option value="yoomoney">💳 ЮMoney</option>
+                            <option value="webmoney">🕸️ WebMoney</option>
                         </select>
+                        <div class="min-amount-info" id="ewallet-min-amount">
+                            Минимальная сумма вывода: 200,000 монет (5 USD/RUB)
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="ewallet-amount">Сумма вывода:</label>
-                        <input type="number" class="form-input" id="ewallet-amount" placeholder="Минимум 2000" min="2000">
+                        <label class="form-label" for="ewallet-amount">Сумма вывода (монеты):</label>
+                        <input type="number" class="form-input" id="ewallet-amount" placeholder="Введите сумму" min="200000">
+                        <div class="exchange-rate-display" id="ewallet-exchange">
+                            0 монет = 0.00 USD
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1036,21 +1163,27 @@
                 <div class="withdraw-form">
                     <div class="form-group">
                         <label class="form-label" for="game-method">Метод вывода:</label>
-                        <select class="form-select" id="game-method">
-                            <option value="valorant">Valorant Points</option>
-                            <option value="steam">Steam Funds</option>
-                            <option value="robux">Robux</option>
+                        <select class="form-select" id="game-method" onchange="updateMinAmount('game')">
+                            <option value="valorant">🎯 Valorant Points</option>
+                            <option value="steam">🎯 Steam Funds</option>
+                            <option value="robux">🎮 Robux</option>
                         </select>
+                        <div class="min-amount-info" id="game-min-amount">
+                            Минимальная сумма вывода: 1,000,000 монет (10 Robux)
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="game-amount">Сумма вывода:</label>
-                        <input type="number" class="form-input" id="game-amount" placeholder="Минимум 1500" min="1500">
+                        <label class="form-label" for="game-amount">Сумма вывода (монеты):</label>
+                        <input type="number" class="form-input" id="game-amount" placeholder="Введите сумму" min="1000000">
+                        <div class="exchange-rate-display" id="game-exchange">
+                            0 монет = 0.00 Robux
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="game-username">Игровой никнейм:</label>
-                        <input type="text" class="form-input" id="game-username" placeholder="Введите ваш игровой никнейм">
+                        <label class="form-label" for="game-username">Игровой никнейм/ID:</label>
+                        <input type="text" class="form-input" id="game-username" placeholder="Введите ваш игровой никнейм или ID">
                     </div>
                     
                     <button class="btn btn-success" style="width: 100%;" onclick="submitWithdraw('game')">
@@ -1097,6 +1230,7 @@
             <div class="tabs">
                 <div class="tab active" onclick="switchLeaderboardTab('players')">Игроки</div>
                 <div class="tab" onclick="switchLeaderboardTab('clans')">Кланы</div>
+                <div class="tab" onclick="switchLeaderboardTab('taps')">Тапы</div>
             </div>
             
             <div class="tab-content active" id="players-tab">
@@ -1108,6 +1242,12 @@
             <div class="tab-content" id="clans-tab">
                 <div class="leaderboard-list" id="clans-leaderboard">
                     <!-- Лидерборд кланов будет добавляться через JS -->
+                </div>
+            </div>
+            
+            <div class="tab-content" id="taps-tab">
+                <div class="leaderboard-list" id="taps-leaderboard">
+                    <!-- Лидерборд по тапам будет добавляться через JS -->
                 </div>
             </div>
             
@@ -1192,7 +1332,7 @@
             
             <div style="text-align: center; margin-bottom: 20px;">
                 <div style="font-size: 16px; margin-bottom: 10px;">Приглашайте друзей и получайте бонусы!</div>
-                <div class="referral-code" id="referral-code">PUG-12345</div>
+                <div class="referral-code" id="referral-code">Загрузка...</div>
                 <button class="btn btn-accent" style="width: 100%; margin-top: 10px;" onclick="copyReferralCode()">
                     <i class="fas fa-copy"></i> Скопировать ссылку
                 </button>
@@ -1209,12 +1349,34 @@
                 </div>
             </div>
             
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-top: 15px;">
-                <strong>🎁 Бонусы</strong>
-                <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">
-                    • 10% от заработка реферала<br>
-                    • 100 монет за каждого активного друга<br>
-                    • Эксклюзивные скины за 10+ рефералов
+            <div class="referral-bonuses">
+                <strong>🎁 Бонусы за рефералов</strong>
+                <div style="font-size: 14px; margin-top: 10px;">
+                    • <strong>500 монет</strong> за каждого приглашенного друга<br>
+                    • <strong>+1 к силе тапа</strong> за каждого реферала<br>
+                    • <strong>Эксклюзивные скины</strong> за 10+ рефералов<br>
+                    • <strong>Бонусные уровни</strong> за активных рефералов
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <strong>📊 Прогресс бонусов</strong>
+                    <div style="margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>5 рефералов</span>
+                            <span style="color: var(--accent);">+2,500 монет</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ref-progress-5" style="width: 0%;"></div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; margin-top: 15px;">
+                            <span>10 рефералов</span>
+                            <span style="color: var(--accent);">Эксклюзивный скин! 🎭</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ref-progress-10" style="width: 0%;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1283,7 +1445,7 @@
             </button>
             
             <div style="text-align: center; margin-top: 20px; opacity: 0.7; font-size: 12px;">
-                Версия 2.1.0<br>
+                Версия 3.0.0<br>
                 Pug Empire © 2024
             </div>
         </div>
@@ -1295,6 +1457,20 @@
         const JSONBIN_BIN_ID = "692c283ad0ea881f40095800";
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
         const JSONBIN_UPDATE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+        // Курсы обмена для вывода (завышенные)
+        const EXCHANGE_RATES = {
+            robux: { rate: 100000, min_amount: 10, currency: "Robux", emoji: "🎮", min_coins: 1000000 },
+            steam: { rate: 50000, min_amount: 5, currency: "USD Steam", emoji: "🎯", min_coins: 250000 },
+            valorant: { rate: 80000, min_amount: 5, currency: "Valorant Points", emoji: "🎯", min_coins: 400000 },
+            ton: { rate: 20000, min_amount: 10, currency: "TON", emoji: "⚡", min_coins: 200000 },
+            trx: { rate: 25000, min_amount: 10, currency: "TRX", emoji: "🔗", min_coins: 250000 },
+            bnb: { rate: 30000, min_amount: 0.1, currency: "BNB", emoji: "🟡", min_coins: 3000 },
+            usdt: { rate: 20000, min_amount: 10, currency: "USDT", emoji: "💵", min_coins: 200000 },
+            qiwi: { rate: 40000, min_amount: 5, currency: "RUB Qiwi", emoji: "🥝", min_coins: 200000 },
+            yoomoney: { rate: 40000, min_amount: 5, currency: "RUB ЮMoney", emoji: "💳", min_coins: 200000 },
+            webmoney: { rate: 45000, min_amount: 5, currency: "RUB WebMoney", emoji: "🕸️", min_coins: 225000 }
+        };
 
         // Данные игры
         const PUG_SKINS = [
@@ -1320,27 +1496,6 @@
             critical_multiplier: {name: "💥 Множитель крита", description: "Увеличивает множитель критического удара", base_cost: 500, cost_multiplier: 4.0, effect: 0.1, max_level: 25},
             auto_tapper: {name: "🤖 Авто-таппер", description: "Автоматически тапает каждые 10 секунд", base_cost: 1000, cost_multiplier: 5.0, effect: 1, max_level: 20}
         };
-
-        // Данные для демонстрации
-        const LEADERBOARD_DATA = [
-            {name: "Вы", rank: 1, score: 0, isCurrent: true},
-            {name: "ProPug", rank: 2, score: 15420},
-            {name: "Mopsik", rank: 3, score: 13200},
-            {name: "PugLover", rank: 4, score: 11850},
-            {name: "GoldenPaw", rank: 5, score: 10200},
-            {name: "TapMaster", rank: 6, score: 9800},
-            {name: "CoinHunter", rank: 7, score: 8450},
-            {name: "MopsQueen", rank: 8, score: 7200},
-            {name: "PugWarrior", rank: 9, score: 6100},
-            {name: "BabyPug", rank: 10, score: 5300}
-        ];
-
-        const CLANS_DATA = [
-            {name: "Pug Masters", members: 48, level: 5, score: 154200, description: "Самый сильный клан мопсов!"},
-            {name: "Mops Squad", members: 32, level: 4, score: 102500, description: "Команда профессионалов"},
-            {name: "Golden Paws", members: 25, level: 3, score: 84500, description: "Золотые лапки всегда в топе"},
-            {name: "Tap Legends", members: 18, level: 3, score: 62100, description: "Легенды кликера"}
-        ];
 
         let userData = {
             coins: 0,
@@ -1369,6 +1524,7 @@
 
         let tg = window.Telegram.WebApp;
         let userId = null;
+        let allUsers = [];
 
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             tg.expand();
@@ -1379,24 +1535,21 @@
             userId = 'local_user_' + Math.floor(Math.random() * 1000000);
         }
 
-        // Функция восстановления энергии на основе времени (ИСПРАВЛЕННАЯ)
+        // Функция восстановления энергии на основе времени
         function restoreEnergyBasedOnTime(userData) {
             try {
                 const now = new Date();
                 const lastUpdate = new Date(userData.last_energy_update);
                 
-                // Проверяем валидность даты
                 if (isNaN(lastUpdate.getTime())) {
-                    console.warn('Неверная дата last_energy_update, сбрасываем');
                     return {
                         ...userData,
                         last_energy_update: now.toISOString()
                     };
                 }
                 
-                const timeDiff = (now - lastUpdate) / 1000; // в секундах
+                const timeDiff = (now - lastUpdate) / 1000;
                 
-                // Если время не изменилось, возвращаем исходные данные
                 if (timeDiff <= 0) {
                     return userData;
                 }
@@ -1405,17 +1558,12 @@
                 const currentEnergy = userData.energy || 0;
                 const maxEnergy = userData.max_energy || 100;
                 
-                // Восстанавливаем энергию порциями
                 const energyToAdd = Math.floor(timeDiff / energyRegenSpeed);
                 
                 if (energyToAdd > 0) {
                     const newEnergy = Math.min(maxEnergy, currentEnergy + energyToAdd);
-                    
-                    // Рассчитываем точное время, которое было использовано для восстановления
                     const usedTime = energyToAdd * energyRegenSpeed;
                     const newLastUpdate = new Date(lastUpdate.getTime() + usedTime * 1000);
-                    
-                    console.log(`⚡ Восстановлено ${energyToAdd} энергии за ${timeDiff.toFixed(1)}с (использовано ${usedTime}с)`);
                     
                     return {
                         ...userData,
@@ -1447,15 +1595,14 @@
                 
                 const data = await response.json();
                 const users = data.record.users || {};
+                allUsers = users; // Сохраняем всех пользователей
                 
                 if (users[userId]) {
                     console.log('✅ Пользователь найден в базе');
                     let savedData = users[userId];
                     
-                    // ВАЖНО: Восстанавливаем энергию ДО обновления userData
                     savedData = restoreEnergyBasedOnTime(savedData);
                     
-                    // Преобразуем upgrades из строки в объект если нужно
                     if (typeof savedData.upgrades === 'string') {
                         try {
                             savedData.upgrades = JSON.parse(savedData.upgrades);
@@ -1464,31 +1611,22 @@
                         }
                     }
                     
-                    // Обновляем userData, сохраняя настройки
                     userData = { 
                         ...userData, 
                         ...savedData,
-                        settings: userData.settings // Сохраняем текущие настройки
+                        settings: userData.settings
                     };
                     
-                    console.log('📊 Загруженные данные:', {
-                        coins: userData.coins,
-                        energy: userData.energy,
-                        max_energy: userData.max_energy,
-                        last_energy_update: userData.last_energy_update,
-                        energy_regen_speed: userData.energy_regen_speed
-                    });
-                    
-                    // НЕ сохраняем данные сразу после загрузки - это вызывает проблемы
                 } else {
                     console.log('❌ Пользователь не найден, создаем нового');
-                    // Создаем нового пользователя
                     userData.last_energy_update = new Date().toISOString();
                     await saveUserData();
                 }
                 
                 updateDisplay();
                 applySettings();
+                loadWithdrawRates();
+                updateExchangeDisplay();
                 document.getElementById('loading-overlay').style.display = 'none';
                 
             } catch (error) {
@@ -1503,7 +1641,6 @@
             try {
                 console.log('💾 Сохранение данных...');
                 
-                // Сначала загружаем текущие данные
                 const response = await fetch(JSONBIN_URL, {
                     headers: {
                         "X-Master-Key": JSONBIN_API_KEY
@@ -1517,7 +1654,6 @@
                 const data = await response.json();
                 const users = data.record.users || {};
                 
-                // Подготавливаем данные для сохранения
                 const userDataToSave = {
                     username: userData.username || `user_${userId}`,
                     coins: userData.coins || 0,
@@ -1544,10 +1680,8 @@
                     }
                 };
                 
-                // Обновляем данные пользователя
                 users[userId] = userDataToSave;
                 
-                // Сохраняем обратно
                 const updateResponse = await fetch(JSONBIN_UPDATE_URL, {
                     method: 'PUT',
                     headers: {
@@ -1584,20 +1718,29 @@
             document.getElementById('withdraw-balance').textContent = Math.floor(userData.coins).toLocaleString();
             document.getElementById('total-taps').textContent = userData.total_taps.toLocaleString();
             document.getElementById('referrals-count').textContent = userData.referrals_count;
-            document.getElementById('referrals-earned').textContent = (userData.referrals_count * 100).toLocaleString();
+            document.getElementById('referrals-earned').textContent = (userData.referrals_count * 500).toLocaleString();
             
             // Обновляем скин
             const currentSkin = getCurrentSkin();
             document.getElementById('current-skin').textContent = currentSkin.emoji;
             document.getElementById('skin-name').textContent = currentSkin.name;
             
-            // Показываем следующий скин
             const nextSkin = getNextSkin();
             if (nextSkin) {
                 document.getElementById('next-skin').textContent = `Следующий скин: ${nextSkin.taps_required.toLocaleString()} тапов`;
             } else {
                 document.getElementById('next-skin').textContent = 'Максимальный скин unlocked!';
             }
+            
+            // Обновляем прогресс рефералов
+            const refProgress5 = Math.min(100, (userData.referrals_count / 5) * 100);
+            const refProgress10 = Math.min(100, (userData.referrals_count / 10) * 100);
+            document.getElementById('ref-progress-5').style.width = `${refProgress5}%`;
+            document.getElementById('ref-progress-10').style.width = `${refProgress10}%`;
+            
+            // Обновляем ссылку рефералов
+            const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
+            document.getElementById('referral-code').textContent = refLink;
         }
 
         // Применение настроек
@@ -1645,26 +1788,18 @@
 
         // Обработчик тапов
         async function handleTap(event) {
-            // Сначала восстанавливаем энергию
             userData = restoreEnergyBasedOnTime(userData);
             
             if (userData.energy >= 1) {
-                const oldEnergy = userData.energy;
-                
-                // Основной заработок
                 let earned = userData.per_tap;
                 userData.coins += earned;
                 userData.energy--;
                 userData.total_taps++;
                 userData.last_tap_time = new Date().toISOString();
-                
-                // ОБНОВЛЯЕМ last_energy_update при трате энергии
                 userData.last_energy_update = new Date().toISOString();
                 
-                // Создаем эффект тапа
                 createTapEffect(event, `+${earned} 💎`);
                 
-                // Критический удар
                 let critChance = 5 + (userData.upgrades.critical_chance || 0) * 0.5;
                 if (Math.random() < critChance / 100) {
                     let critMultiplier = 2 + (userData.upgrades.critical_multiplier || 0) * 0.1;
@@ -1673,26 +1808,20 @@
                     createTapEffect(event, `💥 КРИТ! +${critBonus}`);
                 }
                 
-                // Случайный бонус
                 if (Math.random() < 0.1) {
                     const bonus = Math.floor(Math.random() * 5 + 1) * userData.per_tap;
                     userData.coins += bonus;
                     createTapEffect(event, `🎉 +${bonus}!`);
                 }
                 
-                // Проверка уровня
                 const newLevel = Math.floor(userData.coins / 1000) + 1;
                 if (newLevel > userData.level) {
                     userData.level = newLevel;
                     showLevelUp();
                 }
                 
-                // Проверка скинов
                 checkSkinUnlocks();
-                
                 updateDisplay();
-                
-                // Сохраняем данные после тапа
                 await saveUserData();
                 
             } else {
@@ -1715,27 +1844,354 @@
             }, 1000);
         }
 
-        // Улучшенная функция восстановления энергии (для интерфейса)
-        async function restoreEnergy() {
-            const oldEnergy = userData.energy;
-            userData = restoreEnergyBasedOnTime(userData);
+        // Загрузка курсов обмена
+        function loadWithdrawRates() {
+            const ratesContainer = document.getElementById('withdraw-rates');
+            let ratesHTML = '<h3>💰 Курсы обмена</h3>';
             
-            // Обновляем отображение только если энергия изменилась
-            if (userData.energy !== oldEnergy) {
+            for (const [method, info] of Object.entries(EXCHANGE_RATES)) {
+                const minCoins = info.min_coins;
+                ratesHTML += `
+                    <div class="rate-card">
+                        <div class="rate-header">
+                            <span class="rate-emoji">${info.emoji}</span>
+                            <span class="rate-currency">${info.currency}</span>
+                        </div>
+                        <div class="rate-details">
+                            <div><strong>${info.rate.toLocaleString()} монет = 1 ${info.currency.split().pop()}</strong></div>
+                            <div>Минимум: ${minCoins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            ratesContainer.innerHTML = ratesHTML;
+        }
+
+        // Обновление минимальной суммы вывода
+        function updateMinAmount(type) {
+            let method, minInfo;
+            
+            if (type === 'crypto') {
+                method = document.getElementById('crypto-method').value;
+                const info = EXCHANGE_RATES[method];
+                minInfo = `Минимальная сумма вывода: ${info.min_coins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})`;
+                document.getElementById('crypto-min-amount').innerHTML = minInfo;
+                document.getElementById('crypto-amount').min = info.min_coins;
+                document.getElementById('crypto-amount').placeholder = `Минимум ${info.min_coins.toLocaleString()}`;
+            } else if (type === 'ewallet') {
+                method = document.getElementById('ewallet-method').value;
+                const info = EXCHANGE_RATES[method];
+                minInfo = `Минимальная сумма вывода: ${info.min_coins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})`;
+                document.getElementById('ewallet-min-amount').innerHTML = minInfo;
+                document.getElementById('ewallet-amount').min = info.min_coins;
+                document.getElementById('ewallet-amount').placeholder = `Минимум ${info.min_coins.toLocaleString()}`;
+            } else if (type === 'game') {
+                method = document.getElementById('game-method').value;
+                const info = EXCHANGE_RATES[method];
+                minInfo = `Минимальная сумма вывода: ${info.min_coins.toLocaleString()} монет (${info.min_amount} ${info.currency.split().pop()})`;
+                document.getElementById('game-min-amount').innerHTML = minInfo;
+                document.getElementById('game-amount').min = info.min_coins;
+                document.getElementById('game-amount').placeholder = `Минимум ${info.min_coins.toLocaleString()}`;
+            }
+            
+            updateExchangeDisplay();
+        }
+
+        // Обновление отображения курса
+        function updateExchangeDisplay() {
+            // Криптовалюты
+            const cryptoMethod = document.getElementById('crypto-method').value;
+            const cryptoAmount = parseInt(document.getElementById('crypto-amount').value) || 0;
+            const cryptoInfo = EXCHANGE_RATES[cryptoMethod];
+            const cryptoResult = (cryptoAmount / cryptoInfo.rate).toFixed(2);
+            document.getElementById('crypto-exchange').textContent = 
+                `${cryptoAmount.toLocaleString()} монет = ${cryptoResult} ${cryptoInfo.currency.split().pop()}`;
+            
+            // Электронные кошельки
+            const ewalletMethod = document.getElementById('ewallet-method').value;
+            const ewalletAmount = parseInt(document.getElementById('ewallet-amount').value) || 0;
+            const ewalletInfo = EXCHANGE_RATES[ewalletMethod];
+            const ewalletResult = (ewalletAmount / ewalletInfo.rate).toFixed(2);
+            document.getElementById('ewallet-exchange').textContent = 
+                `${ewalletAmount.toLocaleString()} монет = ${ewalletResult} ${ewalletInfo.currency.split().pop()}`;
+            
+            // Игровые валюты
+            const gameMethod = document.getElementById('game-method').value;
+            const gameAmount = parseInt(document.getElementById('game-amount').value) || 0;
+            const gameInfo = EXCHANGE_RATES[gameMethod];
+            const gameResult = (gameAmount / gameInfo.rate).toFixed(2);
+            document.getElementById('game-exchange').textContent = 
+                `${gameAmount.toLocaleString()} монет = ${gameResult} ${gameInfo.currency.split().pop()}`;
+        }
+
+        // Улучшенная система вывода
+        async function submitWithdraw(type) {
+            let amount, method, details, amountInput, addressInput;
+            
+            if (type === 'crypto') {
+                amountInput = document.getElementById('crypto-amount');
+                method = document.getElementById('crypto-method').value;
+                addressInput = document.getElementById('crypto-address');
+            } else if (type === 'ewallet') {
+                amountInput = document.getElementById('ewallet-amount');
+                method = document.getElementById('ewallet-method').value;
+                addressInput = document.getElementById('ewallet-account');
+            } else if (type === 'game') {
+                amountInput = document.getElementById('game-amount');
+                method = document.getElementById('game-method').value;
+                addressInput = document.getElementById('game-username');
+            }
+            
+            amount = parseInt(amountInput.value);
+            details = addressInput.value;
+            
+            const rateInfo = EXCHANGE_RATES[method];
+            
+            if (!amount || amount > userData.coins) {
+                showNotification('Недостаточно монет для вывода', 'error');
+                return;
+            }
+            
+            if (amount < rateInfo.min_coins) {
+                showNotification(`Минимальная сумма вывода: ${rateInfo.min_coins.toLocaleString()} монет (${rateInfo.min_amount} ${rateInfo.currency.split().pop()})`, 'error');
+                return;
+            }
+            
+            if (!details) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+            
+            // Показываем анимацию обработки
+            showWithdrawProcessing(amount, method, details);
+            
+            // Имитация успешного вывода (в реальности здесь будет API запрос)
+            setTimeout(() => {
+                const payout = (amount / rateInfo.rate).toFixed(2);
+                showWithdrawSuccess(amount, method, details, payout, rateInfo.currency);
+                
+                // Списываем монеты
+                userData.coins -= amount;
                 updateDisplay();
+                saveUserData();
                 
-                // Сохраняем только если прошло достаточно времени (раз в 30 секунд)
-                const now = new Date();
-                const lastSave = new Date(userData.last_save_time || now.toISOString());
-                const timeSinceLastSave = (now - lastSave) / 1000;
+                setTimeout(() => {
+                    hideWithdraw();
+                }, 2000);
+            }, 3000);
+        }
+
+        function showWithdrawProcessing(amount, method, details) {
+            const info = EXCHANGE_RATES[method];
+            document.getElementById('popup-title').textContent = '⏳ Обработка вывода';
+            document.getElementById('popup-message').innerHTML = `
+                <div class="withdraw-processing">
+                    <div class="spinner"></div>
+                    <div style="margin-top: 20px;">
+                        <div>💎 Сумма: ${amount.toLocaleString()} монет</div>
+                        <div>💰 Метод: ${info.emoji} ${info.currency}</div>
+                        <div>📧 Реквизиты: ${details.substring(0, 20)}...</div>
+                        <div>⏰ Обрабатываем ваш запрос...</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('bonus-popup').className = 'bonus-popup';
+            document.getElementById('bonus-popup').style.display = 'block';
+        }
+
+        function showWithdrawSuccess(amount, method, details, payout, currency) {
+            const info = EXCHANGE_RATES[method];
+            document.getElementById('popup-title').textContent = '✅ Вывод успешен!';
+            document.getElementById('popup-message').innerHTML = `
+                <div class="withdraw-success">
+                    <div class="success-animation">🎉</div>
+                    <div style="margin-top: 20px;">
+                        <div>💎 Сумма: ${amount.toLocaleString()} монет</div>
+                        <div>💰 К выплате: ${payout} ${currency.split().pop()}</div>
+                        <div>📧 Реквизиты: ${details}</div>
+                        <div>✅ Статус: Успешно обработан</div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(76,175,80,0.2); border-radius: 10px;">
+                        Средства будут зачислены в течение 24 часов<br>
+                        Номер транзакции: TX-${Date.now().toString().slice(-8)}
+                    </div>
+                </div>
+            `;
+            document.getElementById('bonus-popup').className = 'bonus-popup level-up';
+        }
+
+        // Улучшенная система лидерборда
+        async function showLeaderboard() {
+            const menu = document.getElementById('leaderboard-menu');
+            
+            // Загружаем всех пользователей
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    headers: {
+                        "X-Master-Key": JSONBIN_API_KEY
+                    }
+                });
                 
-                if (timeSinceLastSave > 30) {
-                    await saveUserData();
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = data.record.users || {};
+                    
+                    // Топ по монетам
+                    const topByCoins = Object.entries(users)
+                        .map(([id, user]) => ({
+                            id,
+                            username: user.username || `Игрок ${id}`,
+                            coins: user.coins || 0,
+                            level: user.level || 1,
+                            total_taps: user.total_taps || 0,
+                            isCurrent: id === userId
+                        }))
+                        .sort((a, b) => b.coins - a.coins)
+                        .slice(0, 100);
+                    
+                    // Топ по тапам
+                    const topByTaps = Object.entries(users)
+                        .map(([id, user]) => ({
+                            id,
+                            username: user.username || `Игрок ${id}`,
+                            total_taps: user.total_taps || 0,
+                            coins: user.coins || 0,
+                            level: user.level || 1,
+                            isCurrent: id === userId
+                        }))
+                        .sort((a, b) => b.total_taps - a.total_taps)
+                        .slice(0, 100);
+                    
+                    // Обновляем таблицы
+                    updateLeaderboardList('players', topByCoins, 'coins');
+                    updateLeaderboardList('taps', topByTaps, 'total_taps');
+                    
                 }
+            } catch (error) {
+                console.error('Ошибка загрузки лидерборда:', error);
+            }
+            
+            menu.style.display = 'block';
+        }
+
+        function updateLeaderboardList(tabId, users, field) {
+            const list = document.getElementById(`${tabId === 'players' ? 'leaderboard' : tabId === 'taps' ? 'taps' : 'clans'}-list`);
+            list.innerHTML = '';
+            
+            users.forEach((user, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                if (user.isCurrent) {
+                    item.style.background = 'rgba(255,215,0,0.2)';
+                    item.style.border = '1px solid rgba(255,215,0,0.5)';
+                }
+                
+                // Генерируем аватар на основе ID
+                const avatarEmoji = ['🐶', '🐱', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐮', '🐷'][parseInt(user.id) % 10] || '👤';
+                
+                let displayValue;
+                if (field === 'coins') {
+                    displayValue = `${user.coins.toLocaleString()} 💎`;
+                } else if (field === 'total_taps') {
+                    displayValue = `${user.total_taps.toLocaleString()} 👊`;
+                } else {
+                    displayValue = user[field];
+                }
+                
+                item.innerHTML = `
+                    <div class="leaderboard-rank ${index < 3 ? 'top-' + (index + 1) : ''}">
+                        ${index < 3 ? ['🥇', '🥈', '🥉'][index] : index + 1}
+                    </div>
+                    <div class="top-user">
+                        <div class="user-avatar">${avatarEmoji}</div>
+                        <div class="leaderboard-user">
+                            <div>${user.username}</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Ур. ${user.level}</div>
+                        </div>
+                    </div>
+                    <div class="leaderboard-score">${displayValue}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function hideLeaderboard() {
+            document.getElementById('leaderboard-menu').style.display = 'none';
+        }
+
+        function switchLeaderboardTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tabEl => {
+                tabEl.classList.remove('active');
+            });
+            
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Остальные функции (пока оставим как есть, но с улучшениями)
+        function showWithdraw() {
+            updateMinAmount('crypto');
+            updateMinAmount('ewallet');
+            updateMinAmount('game');
+            document.getElementById('withdraw-menu').style.display = 'block';
+        }
+
+        function hideWithdraw() {
+            document.getElementById('withdraw-menu').style.display = 'none';
+        }
+
+        function switchWithdrawTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tabEl => {
+                tabEl.classList.remove('active');
+            });
+            
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'crypto') updateMinAmount('crypto');
+            else if (tab === 'ewallet') updateMinAmount('ewallet');
+            else if (tab === 'game') updateMinAmount('game');
+        }
+
+        // Улучшенная реферальная система
+        function showReferrals() {
+            const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
+            document.getElementById('referral-code').textContent = refLink;
+            document.getElementById('referrals-menu').style.display = 'block';
+        }
+
+        function hideReferrals() {
+            document.getElementById('referrals-menu').style.display = 'none';
+        }
+
+        function copyReferralCode() {
+            const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(refLink).then(() => {
+                    showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = refLink;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
             }
         }
 
-        // Система прокачки
+        // Остальные функции (уже были в коде)
         function showUpgrades() {
             const menu = document.getElementById('upgrades-menu');
             const list = document.getElementById('upgrades-list');
@@ -1775,10 +2231,6 @@
             menu.style.display = 'block';
         }
 
-        function hideUpgrades() {
-            document.getElementById('upgrades-menu').style.display = 'none';
-        }
-
         async function buyUpgrade(upgradeId) {
             const upgrade = UPGRADES[upgradeId];
             const currentLevel = userData.upgrades[upgradeId] || 0;
@@ -1794,11 +2246,9 @@
                 return;
             }
             
-            // Покупаем улучшение
             userData.coins -= cost;
             userData.upgrades[upgradeId] = currentLevel + 1;
             
-            // Применяем эффекты
             if (upgradeId === 'tap_power') {
                 userData.per_tap += upgrade.effect;
             } else if (upgradeId === 'energy_capacity') {
@@ -1811,412 +2261,40 @@
             updateDisplay();
             await saveUserData();
             
-            // Обновляем список улучшений
             setTimeout(showUpgrades, 1000);
         }
 
-        // Меню скинов
-        function showSkins() {
-            const menu = document.getElementById('skins-menu');
-            const grid = document.getElementById('skins-grid');
-            grid.innerHTML = '';
-            
-            PUG_SKINS.forEach(skin => {
-                const isUnlocked = userData.total_taps >= skin.taps_required;
-                const isCurrent = userData.pug_skin === skin.id;
-                
-                const skinElement = document.createElement('div');
-                skinElement.className = `skin-card ${isUnlocked ? '' : 'locked'} ${isCurrent ? 'current' : ''}`;
-                skinElement.innerHTML = `
-                    <div class="skin-emoji">${skin.emoji}</div>
-                    <div class="skin-name">${skin.name}</div>
-                    <div class="skin-requirement">${skin.taps_required.toLocaleString()} тапов</div>
-                    ${isCurrent ? '<div style="color: #FFD700; font-size: 10px; margin-top: 5px;">✓ Текущий</div>' : ''}
-                `;
-                
-                if (isUnlocked && !isCurrent) {
-                    skinElement.style.cursor = 'pointer';
-                    skinElement.onclick = () => selectSkin(skin.id);
-                }
-                
-                grid.appendChild(skinElement);
-            });
-            
-            menu.style.display = 'block';
+        function hideUpgrades() {
+            document.getElementById('upgrades-menu').style.display = 'none';
         }
 
-        function hideSkins() {
-            document.getElementById('skins-menu').style.display = 'none';
-        }
-
-        async function selectSkin(skinId) {
-            userData.pug_skin = skinId;
-            updateDisplay();
-            await saveUserData();
-            hideSkins();
-            showNotification('Новый внешний вид активирован!', 'success');
-        }
-
-        // Система вывода
-        function showWithdraw() {
-            document.getElementById('withdraw-menu').style.display = 'block';
-        }
-
-        function hideWithdraw() {
-            document.getElementById('withdraw-menu').style.display = 'none';
-        }
-
-        function switchWithdrawTab(tab) {
-            // Скрыть все табы
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tabEl => {
-                tabEl.classList.remove('active');
-            });
-            
-            // Показать выбранный таб
-            document.getElementById(`${tab}-tab`).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        async function submitWithdraw(type) {
-            let amount, method, details;
-            
-            if (type === 'crypto') {
-                amount = parseInt(document.getElementById('crypto-amount').value);
-                method = document.getElementById('crypto-method').value;
-                details = document.getElementById('crypto-address').value;
-                
-                if (amount < 1000) {
-                    showNotification('Минимальная сумма вывода для криптовалют: 1000 монет', 'error');
-                    return;
-                }
-            } else if (type === 'ewallet') {
-                amount = parseInt(document.getElementById('ewallet-amount').value);
-                method = document.getElementById('ewallet-method').value;
-                details = document.getElementById('ewallet-account').value;
-                
-                if (amount < 2000) {
-                    showNotification('Минимальная сумма вывода для электронных кошельков: 2000 монет', 'error');
-                    return;
-                }
-            } else if (type === 'game') {
-                amount = parseInt(document.getElementById('game-amount').value);
-                method = document.getElementById('game-method').value;
-                details = document.getElementById('game-username').value;
-                
-                if (amount < 1500) {
-                    showNotification('Минимальная сумма вывода для игровых валют: 1500 монет', 'error');
-                    return;
-                }
-            }
-            
-            if (!amount || amount > userData.coins) {
-                showNotification('Недостаточно монет для вывода', 'error');
-                return;
-            }
-            
-            if (!details) {
-                showNotification('Заполните все поля', 'error');
-                return;
-            }
-            
-            // Списываем монеты
-            userData.coins -= amount;
-            updateDisplay();
-            await saveUserData();
-            
-            showNotification(`Заявка на вывод ${amount} монет отправлена! Ожидайте обработки в течение 24 часов.`, 'success');
-            hideWithdraw();
-        }
-
-        // Система лидерборда
-        function showLeaderboard() {
-            const menu = document.getElementById('leaderboard-menu');
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = '';
-            
-            // Обновляем текущий счет пользователя
-            LEADERBOARD_DATA[0].score = userData.coins;
-            
-            LEADERBOARD_DATA.forEach(player => {
-                const item = document.createElement('div');
-                item.className = 'leaderboard-item';
-                if (player.isCurrent) {
-                    item.style.background = 'rgba(255,215,0,0.2)';
-                    item.style.border = '1px solid rgba(255,215,0,0.5)';
-                }
-                item.innerHTML = `
-                    <div class="leaderboard-rank">${player.rank}</div>
-                    <div class="leaderboard-user">${player.name}</div>
-                    <div class="leaderboard-score">${player.score.toLocaleString()}</div>
-                `;
-                list.appendChild(item);
-            });
-            
-            // Заполняем лидерборд кланов
-            const clansList = document.getElementById('clans-leaderboard');
-            clansList.innerHTML = '';
-            
-            CLANS_DATA.forEach((clan, index) => {
-                const item = document.createElement('div');
-                item.className = 'leaderboard-item';
-                item.innerHTML = `
-                    <div class="leaderboard-rank">${index + 1}</div>
-                    <div class="leaderboard-user">
-                        <div>${clan.name}</div>
-                        <div style="font-size: 12px; opacity: 0.8;">${clan.description}</div>
-                    </div>
-                    <div class="leaderboard-score">${clan.score.toLocaleString()}</div>
-                `;
-                clansList.appendChild(item);
-            });
-            
-            menu.style.display = 'block';
-        }
-
-        function hideLeaderboard() {
-            document.getElementById('leaderboard-menu').style.display = 'none';
-        }
-
-        function switchLeaderboardTab(tab) {
-            // Скрыть все табы
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tabEl => {
-                tabEl.classList.remove('active');
-            });
-            
-            // Показать выбранный таб
-            document.getElementById(`${tab}-tab`).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // Система кланов
-        function showClans() {
-            const menu = document.getElementById('clans-menu');
-            const list = document.getElementById('clans-list');
-            list.innerHTML = '';
-            
-            CLANS_DATA.forEach(clan => {
-                const clanElement = document.createElement('div');
-                clanElement.className = 'clan-card';
-                clanElement.innerHTML = `
-                    <div class="clan-header">
-                        <div>
-                            <strong>${clan.name}</strong>
-                            <div class="clan-members">Участников: ${clan.members}/50</div>
-                        </div>
-                        <div>
-                            <div style="font-weight: bold; color: #FFD700;">Ур. ${clan.level}</div>
-                            <div style="font-size: 12px; opacity: 0.8;">${clan.score.toLocaleString()}</div>
-                        </div>
-                    </div>
-                    <div style="font-size: 14px; margin: 10px 0; opacity: 0.8;">
-                        ${clan.description}
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%;" onclick="joinClan('${clan.name}')">
-                        <i class="fas fa-sign-in-alt"></i> Вступить
-                    </button>
-                `;
-                list.appendChild(clanElement);
-            });
-            
-            menu.style.display = 'block';
-        }
-
-        function hideClans() {
-            document.getElementById('clans-menu').style.display = 'none';
-        }
-
-        function switchClanTab(tab) {
-            // Скрыть все табы
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tabEl => {
-                tabEl.classList.remove('active');
-            });
-            
-            // Показать выбранный таб
-            document.getElementById(`clan-${tab}-tab`).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        async function joinClan(clanName) {
-            showNotification(`Вы вступили в клан "${clanName}"!`, 'success');
-            document.getElementById('user-clan').textContent = clanName;
-            userData.clan_id = clanName;
-            await saveUserData();
-        }
-
-        async function createClan() {
-            const name = document.getElementById('clan-name').value;
-            const description = document.getElementById('clan-description').value;
-            
-            if (!name || !description) {
-                showNotification('Заполните все поля', 'error');
-                return;
-            }
-            
-            if (userData.coins < 1000) {
-                showNotification('Недостаточно монет для создания клана. Нужно 1000 монет.', 'error');
-                return;
-            }
-            
-            userData.coins -= 1000;
-            userData.clan_id = name;
-            document.getElementById('user-clan').textContent = name;
-            
-            updateDisplay();
-            await saveUserData();
-            
-            showNotification(`Клан "${name}" успешно создан!`, 'success');
-            switchClanTab('my');
-        }
-
-        // Система рефералов
-        function showReferrals() {
-            // Генерируем реферальный код на основе ID пользователя
-            document.getElementById('referral-code').textContent = `PUG-${userId}`;
-            
-            document.getElementById('referrals-menu').style.display = 'block';
-        }
-
-        function hideReferrals() {
-            document.getElementById('referrals-menu').style.display = 'none';
-        }
-
-        function copyReferralCode() {
-            const code = document.getElementById('referral-code').textContent;
-            const url = `https://t.me/PugEmpireBot?start=ref_${userId}`;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
-                });
-            } else {
-                // Fallback для старых браузеров
-                const textArea = document.createElement('textarea');
-                textArea.value = url;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
-            }
-        }
-
-        // Настройки
-        function showSettings() {
-            document.getElementById('settings-menu').style.display = 'block';
-        }
-
-        function hideSettings() {
-            // Сохраняем настройки
-            userData.settings = {
-                sound: document.getElementById('sound-toggle').checked,
-                vibration: document.getElementById('vibration-toggle').checked,
-                darkMode: document.getElementById('dark-mode-toggle').checked,
-                notifications: document.getElementById('notifications-toggle').checked
-            };
-            
-            applySettings();
-            saveUserData();
-            
-            document.getElementById('settings-menu').style.display = 'none';
-        }
-
-        function exportData() {
-            const dataStr = JSON.stringify(userData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `pug_empire_data_${userId}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showNotification('Данные успешно экспортированы!', 'success');
-        }
-
-        function resetProgress() {
-            if (confirm('Вы уверены, что хотите сбросить весь прогресс? Это действие нельзя отменить.')) {
-                userData = {
-                    coins: 0,
-                    per_tap: 1,
-                    energy: 100,
-                    max_energy: 100,
-                    energy_regen_speed: 10,
-                    level: 1,
-                    total_taps: 0,
-                    upgrades: {},
-                    pug_skin: 1,
-                    referrals_count: 0,
-                    referral_bonus_claimed: false,
-                    referrer_id: null,
-                    clan_id: null,
-                    last_tap_time: new Date().toISOString(),
-                    last_energy_update: new Date().toISOString(),
-                    created_at: new Date().toISOString(),
-                    settings: userData.settings
-                };
-                
+        // Инициализация
+        document.getElementById('tap-area').addEventListener('click', handleTap);
+        
+        // Обработчики для обновления курса в реальном времени
+        document.getElementById('crypto-amount').addEventListener('input', updateExchangeDisplay);
+        document.getElementById('ewallet-amount').addEventListener('input', updateExchangeDisplay);
+        document.getElementById('game-amount').addEventListener('input', updateExchangeDisplay);
+        document.getElementById('crypto-method').addEventListener('change', updateExchangeDisplay);
+        document.getElementById('ewallet-method').addEventListener('change', updateExchangeDisplay);
+        document.getElementById('game-method').addEventListener('change', updateExchangeDisplay);
+        
+        // Восстановление энергии
+        setInterval(() => {
+            const oldEnergy = userData.energy;
+            userData = restoreEnergyBasedOnTime(userData);
+            if (userData.energy !== oldEnergy) {
                 updateDisplay();
-                saveUserData();
-                showNotification('Прогресс успешно сброшен!', 'success');
             }
-        }
-
-        // Вспомогательные функции
-        function showPopup(title, message) {
-            document.getElementById('popup-title').textContent = title;
-            document.getElementById('popup-message').textContent = message;
-            document.getElementById('bonus-popup').className = 'bonus-popup';
-            document.getElementById('bonus-popup').style.display = 'block';
-        }
-
-        function closePopup() {
-            document.getElementById('bonus-popup').style.display = 'none';
-        }
-
-        function showLevelUp() {
-            document.getElementById('popup-title').textContent = '🎊 УРОВЕНЬ ПОВЫШЕН!';
-            document.getElementById('popup-message').textContent = `Новый уровень: ${userData.level}\nПоздравляем! 🐶`;
-            document.getElementById('bonus-popup').className = 'bonus-popup level-up';
-            document.getElementById('bonus-popup').style.display = 'block';
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const text = document.getElementById('notification-text');
-            
-            text.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-            
-            // Обновляем иконку в зависимости от типа
-            const icon = notification.querySelector('i');
-            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-        // Улучшенный авто-таппер
+        }, 1000);
+        
+        // Загрузка данных при старте
+        loadUserData();
+        
+        // Авто-таппер
         setInterval(async () => {
             const autoTapperLevel = userData.upgrades.auto_tapper || 0;
             if (autoTapperLevel > 0) {
-                // Восстанавливаем энергию перед действием
                 userData = restoreEnergyBasedOnTime(userData);
                 
                 if (userData.energy > 0) {
@@ -2228,7 +2306,6 @@
                         userData.total_taps++;
                     }
                     
-                    // ОБНОВЛЯЕМ last_energy_update при трате энергии авто-таппером
                     userData.last_energy_update = new Date().toISOString();
                     
                     updateDisplay();
@@ -2236,15 +2313,6 @@
                 }
             }
         }, 10000);
-
-        // Инициализация
-        document.getElementById('tap-area').addEventListener('click', handleTap);
-        
-        // Восстановление энергии каждую секунду
-        setInterval(restoreEnergy, 1000);
-        
-        // Загрузка данных при старте
-        loadUserData();
         
         // Обработчик от Telegram
         if (tg) {
@@ -2252,329 +2320,6 @@
                 tg.expand();
             });
         }
-
-        // Улучшенная система кланов
-async function createClan() {
-    const name = document.getElementById('clan-name').value;
-    const description = document.getElementById('clan-description').value;
-    
-    if (!name || !description) {
-        showNotification('Заполните все поля', 'error');
-        return;
-    }
-    
-    if (userData.coins < 1000) {
-        showNotification('Недостаточно монет для создания клана. Нужно 1000 монет.', 'error');
-        return;
-    }
-    
-    try {
-        // Отправляем запрос на создание клана через бота
-        const response = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: userId,
-                text: `/create_clan ${name} ${description}`
-            })
-        });
-        
-        if (response.ok) {
-            showNotification(`Запрос на создание клана "${name}" отправлен!`, 'success');
-            hideClans();
-        } else {
-            showNotification('Ошибка при создании клана', 'error');
-        }
-    } catch (error) {
-        console.error('Ошибка создания клана:', error);
-        showNotification('Ошибка при создании клана', 'error');
-    }
-}
-
-// Улучшенная система вывода
-function showWithdrawRates() {
-    const rates = {
-        robux: { rate: 100000, min: 10, currency: "Robux", emoji: "🎮" },
-        steam: { rate: 50000, min: 5, currency: "USD Steam", emoji: "🎯" },
-        ton: { rate: 20000, min: 10, currency: "TON", emoji: "⚡" },
-        trx: { rate: 25000, min: 10, currency: "TRX", emoji: "🔗" },
-        bnb: { rate: 30000, min: 0.1, currency: "BNB", emoji: "🟡" },
-        usdt: { rate: 20000, min: 10, currency: "USDT", emoji: "💵" },
-        qiwi: { rate: 40000, min: 5, currency: "RUB Qiwi", emoji: "🥝" },
-        yoomoney: { rate: 40000, min: 5, currency: "RUB ЮMoney", emoji: "💳" },
-        webmoney: { rate: 45000, min: 5, currency: "RUB WebMoney", emoji: "🕸️" },
-        valorant: { rate: 80000, min: 5, currency: "Valorant Points", emoji: "🎯" }
-    };
-    
-    let ratesHTML = '<div class="withdraw-rates">';
-    ratesHTML += '<h3>💎 Курсы обмена</h3>';
-    
-    for (const [method, info] of Object.entries(rates)) {
-        const minCoins = info.rate * info.min;
-        ratesHTML += `
-            <div class="rate-card">
-                <div class="rate-header">
-                    <span class="rate-emoji">${info.emoji}</span>
-                    <span class="rate-currency">${info.currency}</span>
-                </div>
-                <div class="rate-details">
-                    <div>1 ${info.currency.split().pop()} = ${info.rate.toLocaleString()} монет</div>
-                    <div>Минимум: ${minCoins.toLocaleString()} монет</div>
-                </div>
-            </div>
-        `;
-    }
-    
-    ratesHTML += '</div>';
-    
-    // Показываем попап с курсами
-    document.getElementById('popup-title').textContent = '💰 Курсы обмена';
-    document.getElementById('popup-message').innerHTML = ratesHTML;
-    document.getElementById('bonus-popup').className = 'bonus-popup';
-    document.getElementById('bonus-popup').style.display = 'block';
-}
-
-// Улучшенная функция вывода
-async function submitWithdraw(type) {
-    let amount, method, details;
-    let minAmount = 0;
-    
-    if (type === 'crypto') {
-        amount = parseInt(document.getElementById('crypto-amount').value);
-        method = document.getElementById('crypto-method').value;
-        details = document.getElementById('crypto-address').value;
-        minAmount = getMinAmount(method);
-    } else if (type === 'ewallet') {
-        amount = parseInt(document.getElementById('ewallet-amount').value);
-        method = document.getElementById('ewallet-method').value;
-        details = document.getElementById('ewallet-account').value;
-        minAmount = getMinAmount(method);
-    } else if (type === 'game') {
-        amount = parseInt(document.getElementById('game-amount').value);
-        method = document.getElementById('game-method').value;
-        details = document.getElementById('game-username').value;
-        minAmount = getMinAmount(method);
-    }
-    
-    if (!amount || amount > userData.coins) {
-        showNotification('Недостаточно монет для вывода', 'error');
-        return;
-    }
-    
-    if (amount < minAmount) {
-        showNotification(`Минимальная сумма вывода: ${minAmount.toLocaleString()} монет`, 'error');
-        return;
-    }
-    
-    if (!details) {
-        showNotification('Заполните все поля', 'error');
-        return;
-    }
-    
-    // Показываем анимацию обработки
-    showWithdrawAnimation(amount, method, details);
-    
-    // Имитация успешного вывода (в реальности здесь будет API запрос)
-    setTimeout(() => {
-        showWithdrawSuccess(amount, method, details);
-        
-        // Списываем монеты
-        userData.coins -= amount;
-        updateDisplay();
-        saveUserData();
-        
-        hideWithdraw();
-    }, 3000);
-}
-
-function getMinAmount(method) {
-    const rates = {
-        robux: 1000000, // 10 Robux
-        steam: 250000,  // 5$ Steam
-        ton: 200000,    // 10 TON
-        trx: 250000,    // 10 TRX
-        bnb: 3000,      // 0.1 BNB
-        usdt: 200000,   // 10 USDT
-        qiwi: 200000,   // 5$ Qiwi
-        yoomoney: 200000, // 5$ ЮMoney
-        webmoney: 225000, // 5$ WebMoney
-        valorant: 400000 // 5 VP
-    };
-    return rates[method] || 1000;
-}
-
-function showWithdrawAnimation(amount, method, details) {
-    document.getElementById('popup-title').textContent = '⏳ Обработка вывода';
-    document.getElementById('popup-message').innerHTML = `
-        <div class="withdraw-processing">
-            <div class="spinner"></div>
-            <div style="margin-top: 20px;">
-                <div>💎 Сумма: ${amount.toLocaleString()} монет</div>
-                <div>📦 Метод: ${method}</div>
-                <div>⏰ Обрабатываем ваш запрос...</div>
-            </div>
-        </div>
-    `;
-    document.getElementById('bonus-popup').className = 'bonus-popup';
-    document.getElementById('bonus-popup').style.display = 'block';
-}
-
-function showWithdrawSuccess(amount, method, details) {
-    const payout = calculatePayout(amount, method);
-    
-    document.getElementById('popup-title').textContent = '✅ Вывод успешен!';
-    document.getElementById('popup-message').innerHTML = `
-        <div class="withdraw-success">
-            <div class="success-animation">🎉</div>
-            <div style="margin-top: 20px;">
-                <div>💎 Сумма: ${amount.toLocaleString()} монет</div>
-                <div>💰 К выплате: ${payout.amount} ${payout.currency}</div>
-                <div>📧 Реквизиты: ${details}</div>
-                <div>⏰ Статус: ✅ Успешно</div>
-            </div>
-            <div style="margin-top: 15px; padding: 10px; background: rgba(76,175,80,0.2); border-radius: 10px;">
-                Средства будут зачислены в течение 24 часов
-            </div>
-        </div>
-    `;
-    document.getElementById('bonus-popup').className = 'bonus-popup level-up';
-}
-
-function calculatePayout(amount, method) {
-    const rates = {
-        robux: { rate: 100000, currency: "Robux" },
-        steam: { rate: 50000, currency: "USD" },
-        ton: { rate: 20000, currency: "TON" },
-        trx: { rate: 25000, currency: "TRX" },
-        bnb: { rate: 30000, currency: "BNB" },
-        usdt: { rate: 20000, currency: "USDT" },
-        qiwi: { rate: 40000, currency: "RUB" },
-        yoomoney: { rate: 40000, currency: "RUB" },
-        webmoney: { rate: 45000, currency: "RUB" },
-        valorant: { rate: 80000, currency: "VP" }
-    };
-    
-    const rateInfo = rates[method] || { rate: 1000, currency: "USD" };
-    return {
-        amount: (amount / rateInfo.rate).toFixed(2),
-        currency: rateInfo.currency
-    };
-}
-
-// Улучшенная реферальная система
-function showReferrals() {
-    const refCode = `PUG-${userId}`;
-    const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
-    
-    document.getElementById('referral-code').textContent = refCode;
-    document.getElementById('referrals-menu').style.display = 'block';
-    
-    // Обновляем статистику рефералов
-    document.getElementById('referrals-count').textContent = userData.referrals_count;
-    document.getElementById('referrals-earned').textContent = (userData.referrals_count * 500).toLocaleString();
-}
-
-function copyReferralCode() {
-    const refLink = `https://t.me/PugEmpireBot?start=ref_${userId}`;
-    
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(refLink).then(() => {
-            showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
-        });
-    } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = refLink;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        showNotification('Реферальная ссылка скопирована в буфер обмена!', 'success');
-    }
-}
-
-// Добавьте этот CSS в стили
-const additionalCSS = `
-.withdraw-rates {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.rate-card {
-    background: rgba(255,255,255,0.1);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-
-.rate-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.rate-emoji {
-    font-size: 20px;
-}
-
-.rate-currency {
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.rate-details {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.withdraw-processing, .withdraw-success {
-    text-align: center;
-    padding: 20px;
-}
-
-.success-animation {
-    font-size: 60px;
-    animation: bounce 0.5s ease infinite alternate;
-}
-
-@keyframes bounce {
-    from { transform: scale(1); }
-    to { transform: scale(1.1); }
-}
-
-.clan-member-list {
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 15px 0;
-}
-
-.clan-member {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    margin-bottom: 5px;
-}
-
-.referral-bonuses {
-    background: rgba(255,215,0,0.1);
-    padding: 15px;
-    border-radius: 15px;
-    margin-top: 15px;
-    border: 1px solid rgba(255,215,0,0.3);
-}
-`;
-
-// Добавьте CSS в документ
-const styleSheet = document.createElement("style");
-styleSheet.innerText = additionalCSS;
-document.head.appendChild(styleSheet);
-        
     </script>
 </body>
 </html>
